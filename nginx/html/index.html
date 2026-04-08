@@ -4,264 +4,549 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FraudShield AI | High-Fidelity Monitoring</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+  <title>FraudShield AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
-  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.94/build/spline-viewer.js"></script>
-
   <style>
     :root {
       --primary: #6366f1;
       --success: #22c55e;
       --danger: #ef4444;
-      --bg-dark: #020617;
-      --glass-bg: rgba(15, 23, 42, 0.75);
-      --glass-border: rgba(255, 255, 255, 0.1);
+      --bg: #020617;
+      --card: rgba(15, 23, 42, 0.88);
+      --border: rgba(255, 255, 255, 0.1);
+      --rc: #6366f1;
+      /* robot color */
+      --re: #a5b4fc;
+      /* robot eye   */
+      --rg: rgba(99, 102, 241, 0.35);
+      /* robot glow */
     }
 
-    * {
+    *,
+    *::before,
+    *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
+    /* ── LOCK TO SCREEN ─────────────────────────── */
+    html,
     body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      /* NO SCROLL EVER */
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg-dark);
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 75% 35%, rgba(99, 102, 241, 0.13) 0%, transparent 55%),
+        radial-gradient(circle at 15% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 45%);
       color: #fff;
-      min-height: 100vh;
+    }
+
+    /* ── FULL-PAGE GRID ─────────────────────────── */
+    .page {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      align-items: center;
+      padding: 20px 40px;
+      gap: 30px;
+    }
+
+    /* ── GLASS PANEL ────────────────────────────── */
+    .panel {
+      height: calc(100vh - 40px);
+      max-height: 780px;
       display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(28px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      padding: 28px 30px;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
       overflow: hidden;
     }
 
-    /* --- SPLINE BACKGROUND --- */
-    #spline-container {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
-      pointer-events: none;
-      transition: filter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* --- MAIN PANEL --- */
-    .main-wrapper {
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      max-width: 1200px;
-      padding: 40px;
-      display: flex;
-      align-items: center;
-    }
-
-    .glass-card {
-      backdrop-filter: blur(30px);
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 40px;
-      padding: 45px;
-      width: 480px;
-      box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.8);
-      position: relative;
-    }
-
+    /* Header */
     h1 {
-      font-size: 2.2rem;
+      font-size: 1.7rem;
       font-weight: 800;
-      letter-spacing: -1.5px;
-      margin-bottom: 5px;
-      background: linear-gradient(to bottom, #fff, #94a3b8);
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #fff, #94a3b8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
     }
 
-    .status-badge {
+    .status-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.7rem;
+      gap: 7px;
+      font-size: 0.65rem;
       font-weight: 700;
-      color: #64748b;
+      color: #475569;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 30px;
+      margin-bottom: 16px;
     }
 
-    .dot {
-      width: 8px;
-      height: 8px;
+    .sdot {
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--success);
-      box-shadow: 0 0 12px var(--success);
+      box-shadow: 0 0 8px var(--success);
+      transition: background .4s, box-shadow .4s;
     }
 
-    /* --- FORM --- */
-    .form-grid {
+    /* Form */
+    .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 10px;
     }
 
-    .col-span {
+    .full {
       grid-column: span 2;
     }
 
-    .input-box {
+    .field {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 4px;
     }
 
-    label {
-      font-size: 0.75rem;
-      color: #94a3b8;
-      font-weight: 600;
+    .field label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #64748b;
       text-transform: uppercase;
+      letter-spacing: .8px;
     }
 
     input,
     select {
       background: rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--glass-border);
-      color: white;
-      padding: 14px;
-      border-radius: 14px;
-      font-size: 0.95rem;
-      transition: all 0.3s;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 9px 11px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      width: 100%;
+      transition: border-color .2s, box-shadow .2s;
     }
 
-    input:focus {
+    input:focus,
+    select:focus {
       border-color: var(--primary);
       outline: none;
-      background: rgba(0, 0, 0, 0.6);
-      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     }
 
-    /* --- HIGH-FIDELITY METAL BUTTON --- */
-    .metal-btn-wrapper {
-      position: relative;
-      background: linear-gradient(180deg, #917100, #EAD98F);
-      /* Gold Variant */
-      padding: 1.25px;
+    select option {
+      background: #1e293b;
+    }
+
+    /* Metal Button */
+    .metal-outer {
+      margin-top: 10px;
+      padding: 1.5px;
       border-radius: 12px;
+      background: linear-gradient(180deg, #917100, #EAD98F);
       cursor: pointer;
-      margin-top: 15px;
-      transition: all 0.25s cubic-bezier(0.1, 0.4, 0.2, 1);
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      transition: transform .2s, box-shadow .2s;
     }
 
-    .metal-btn-inner {
-      position: relative;
+    .metal-outer:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.5);
+    }
+
+    .metal-outer:active {
+      transform: translateY(1px);
+      scale: 0.99;
+    }
+
+    .metal-mid {
       background: linear-gradient(180deg, #FFFDDD 0%, #856807 50%, #FFF1B3 100%);
       border-radius: 11px;
       padding: 1px;
     }
 
-    .metal-btn {
-      position: relative;
+    .metal-inner {
       background: linear-gradient(180deg, #FFEBA1, #9B873F);
-      height: 56px;
       border-radius: 10px;
+      height: 46px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #FFFDE5;
       font-weight: 700;
-      text-transform: uppercase;
+      font-size: 0.82rem;
       letter-spacing: 1.5px;
-      text-shadow: 0 -1px 0 rgb(178 140 2);
+      text-transform: uppercase;
+      color: #FFFDE5;
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4);
+      position: relative;
       overflow: hidden;
     }
 
-    .metal-btn-wrapper:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    .metal-btn-wrapper:active {
-      transform: translateY(1px);
-      scale: 0.98;
-    }
-
-    .shine-effect {
+    .shine {
       position: absolute;
       top: 0;
       left: -100%;
-      width: 50%;
+      width: 45%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      transition: 0.6s;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      transition: .55s;
     }
 
-    .metal-btn-wrapper:hover .shine-effect {
-      left: 150%;
+    .metal-outer:hover .shine {
+      left: 160%;
     }
 
-    /* --- RESULTS UI --- */
+    /* Result Block — compact, inline */
     #result {
-      margin-top: 25px;
-      border-radius: 24px;
-      display: none;
+      margin-top: 12px;
+      flex-shrink: 0;
+      border-radius: 16px;
       overflow: hidden;
-      animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      display: none;
+      animation: pop .4s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
-    @keyframes slideUp {
+    @keyframes pop {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: scale(0.96);
       }
     }
 
-    .res-content {
-      padding: 25px;
-      border: 1px solid var(--glass-border);
+    .ri {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
     }
 
-    .fraud-bg {
-      background: rgba(239, 68, 68, 0.15);
-      border-color: var(--danger);
+    .ri h3 {
+      font-size: 0.88rem;
+      margin-bottom: 5px;
     }
 
-    .safe-bg {
-      background: rgba(34, 197, 94, 0.15);
-      border-color: var(--success);
+    .ri p {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .score-bar {
+      padding: 9px 12px;
+      border-radius: 9px;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    .meta {
+      font-size: 0.6rem;
+      color: #475569;
+      margin-top: 8px;
+    }
+
+    .fraud-th {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: #ef4444;
+    }
+
+    .safe-th {
+      background: rgba(34, 197, 94, 0.12);
+      border-color: #22c55e;
+    }
+
+    /* ── ROBOT AREA ─────────────────────────────── */
+    .robot-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      height: 100%;
+    }
+
+    .robot-wrap {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-12px)
+      }
+    }
+
+    /* Antenna */
+    .antenna {
+      margin: 0 auto;
+      width: 4px;
+      height: 34px;
+      background: var(--rc);
+      border-radius: 4px;
+      box-shadow: 0 0 12px var(--rg);
+      position: relative;
+    }
+
+    .antenna::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--re);
+      box-shadow: 0 0 10px var(--re);
+      animation: blink 2.5s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      88%,
+      100% {
+        opacity: 1
+      }
+
+      94% {
+        opacity: 0
+      }
+    }
+
+    /* Head */
+    .head {
+      width: 130px;
+      height: 100px;
+      background: linear-gradient(160deg, #1e293b, #0f172a);
+      border: 2px solid var(--rc);
+      border-radius: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      box-shadow: 0 0 28px var(--rg), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+      transition: border-color .6s, box-shadow .6s;
+    }
+
+    .eyes {
+      display: flex;
+      gap: 18px;
+    }
+
+    .eye {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--re);
+      box-shadow: 0 0 14px var(--re);
+      animation: eyePulse 3s ease-in-out infinite;
+      transition: background .6s, box-shadow .6s;
+    }
+
+    .eye:nth-child(2) {
+      animation-delay: .5s;
+    }
+
+    @keyframes eyePulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1
+      }
+
+      50% {
+        transform: scale(.82);
+        opacity: .6
+      }
+    }
+
+    .mouth {
+      width: 46px;
+      height: 7px;
+      background: var(--rc);
+      border-radius: 4px;
+      box-shadow: 0 0 8px var(--rg);
+      transition: background .6s, box-shadow .6s;
+    }
+
+    /* Body */
+    .body {
+      width: 152px;
+      height: 120px;
+      background: linear-gradient(160deg, #1e293b, #0f172a);
+      border: 2px solid var(--rc);
+      border-radius: 18px;
+      position: relative;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 28px var(--rg);
+      transition: border-color .6s, box-shadow .6s;
+    }
+
+    .arms {
+      position: absolute;
+      width: 210px;
+      height: 120px;
+      top: 0;
+    }
+
+    .arm {
+      position: absolute;
+      width: 20px;
+      height: 82px;
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      border: 2px solid var(--rc);
+      border-radius: 9px;
+      top: 8px;
+      box-shadow: 0 0 12px var(--rg);
+      transition: border-color .6s, box-shadow .6s;
+    }
+
+    .arm.l {
+      left: -8px;
+    }
+
+    .arm.r {
+      right: -8px;
+    }
+
+    .chest {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--rc);
+      box-shadow: 0 0 18px var(--rc), 0 0 36px var(--rc);
+      animation: cpulse 2s ease-in-out infinite;
+      transition: background .6s, box-shadow .6s;
+    }
+
+    @keyframes cpulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: .8
+      }
+
+      50% {
+        transform: scale(1.15);
+        opacity: 1
+      }
+    }
+
+    .blines {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .bl {
+      width: 18px;
+      height: 2.5px;
+      background: var(--rc);
+      border-radius: 2px;
+      opacity: .55;
+      transition: background .6s;
+    }
+
+    /* Legs */
+    .legs {
+      display: flex;
+      gap: 20px;
+      margin-top: 5px;
+    }
+
+    .leg {
+      width: 28px;
+      height: 50px;
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      border: 2px solid var(--rc);
+      border-radius: 9px;
+      box-shadow: 0 0 12px var(--rg);
+      animation: walk 2s ease-in-out infinite alternate;
+      transition: border-color .6s, box-shadow .6s;
+    }
+
+    .leg:nth-child(2) {
+      animation-delay: 1s;
+    }
+
+    @keyframes walk {
+      from {
+        transform: rotate(-4deg)
+      }
+
+      to {
+        transform: rotate(4deg)
+      }
+    }
+
+    .robot-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--rc);
+      transition: color .6s;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- BACKGROUND ROBOT -->
-  <div id="spline-container">
-    <spline-viewer id="robot" url="https://prod.spline.design/i9VvT8fsh5N1lA4P/scene.splinecode"></spline-viewer>
-  </div>
+  <div class="page">
 
-  <div class="main-wrapper">
-    <div class="glass-card">
+    <!-- ── LEFT : PANEL ────────────────────────── -->
+    <div class="panel">
       <header>
         <h1>FraudShield AI</h1>
-        <div class="status-badge">
-          <div class="dot" id="dot"></div>
-          <span id="api-status">Initialisation...</span>
+        <div class="status-row">
+          <div class="sdot" id="dot"></div>
+          <span id="api-status">Connexion…</span>
         </div>
       </header>
 
-      <form id="fraudForm" class="form-grid" onsubmit="event.preventDefault(); predict();">
-        <div class="input-box">
+      <form id="form" class="grid" onsubmit="event.preventDefault(); predict();">
+
+        <div class="field">
           <label>Montant ($)</label>
           <input type="number" step="0.01" id="Amount" value="250.00" required>
         </div>
-        <div class="input-box">
+
+        <div class="field">
           <label>Date & Heure</label>
           <input type="datetime-local" id="Transaction_Date" required>
         </div>
-        <div class="input-box col-span">
-          <label>Marchand</label>
+
+        <div class="field full">
+          <label>Catégorie Marchand</label>
           <select id="Merchant_Category">
             <option value="Retail">Commerce de détail</option>
             <option value="Online Store">Boutique en ligne</option>
@@ -269,18 +554,21 @@
             <option value="Entertainment">Divertissement</option>
           </select>
         </div>
-        <div class="input-box">
-          <label>Distance Home</label>
-          <input type="number" id="Distance_From_Home" value="0.8">
+
+        <div class="field">
+          <label>Distance (km)</label>
+          <input type="number" step="0.1" id="Distance_From_Home" value="0.8">
         </div>
-        <div class="input-box">
+
+        <div class="field">
           <label>PIN Utilisé</label>
           <select id="Is_Pin_Used">
-            <option value="1">Oui (PIN)</option>
-            <option value="0">Non (Sans contact)</option>
+            <option value="1">Oui</option>
+            <option value="0">Non</option>
           </select>
         </div>
 
+        <!-- Hidden API fields -->
         <input type="hidden" id="Card_Type" value="Visa">
         <input type="hidden" id="Transaction_Type" value="POS">
         <input type="hidden" id="Country" value="France">
@@ -288,54 +576,113 @@
         <input type="hidden" id="Is_International" value="0">
         <input type="hidden" id="Is_Chip" value="1">
 
-        <div class="col-span">
-          <div class="metal-btn-wrapper" onclick="document.getElementById('fraudForm').requestSubmit();">
-            <div class="metal-btn-inner">
-              <div class="metal-btn">
-                <div class="shine-effect"></div>
+        <div class="full">
+          <div class="metal-outer" onclick="document.getElementById('form').requestSubmit()">
+            <div class="metal-mid">
+              <div class="metal-inner">
+                <div class="shine"></div>
                 <span id="btn-text">Lancer l'analyse</span>
               </div>
             </div>
           </div>
         </div>
+
       </form>
 
+      <!-- Result: appears here, no scroll needed -->
       <div id="result"></div>
     </div>
+
+    <!-- ── RIGHT : ROBOT ──────────────────────── -->
+    <div class="robot-area">
+      <div class="robot-wrap">
+        <div class="antenna"></div>
+        <div class="head" id="r-head">
+          <div class="eyes">
+            <div class="eye" id="r-eye1"></div>
+            <div class="eye" id="r-eye2"></div>
+          </div>
+          <div class="mouth" id="r-mouth"></div>
+        </div>
+        <div class="body" id="r-body">
+          <div class="arms">
+            <div class="arm l" id="r-arm-l"></div>
+            <div class="arm r" id="r-arm-r"></div>
+          </div>
+          <div class="chest" id="r-chest"></div>
+          <div class="blines">
+            <div class="bl" id="bl1"></div>
+            <div class="bl" id="bl2"></div>
+            <div class="bl" id="bl3"></div>
+          </div>
+        </div>
+        <div class="legs">
+          <div class="leg" id="r-leg1"></div>
+          <div class="leg" id="r-leg2"></div>
+        </div>
+      </div>
+      <div class="robot-label" id="robot-label">EN VEILLE</div>
+    </div>
+
   </div>
 
   <script>
+    // Init datetime
     const now = new Date();
-    document.getElementById('Transaction_Date').value = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    document.getElementById('Transaction_Date').value =
+      new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
+    // Health check
     async function checkHealth() {
-      const status = document.getElementById('api-status');
-      const dot = document.getElementById('dot');
       try {
-        const r = await fetch('/health');
-        const d = await r.json();
-        status.innerText = `SYSTÈME ACTIF (${d.version})`;
-        dot.style.background = 'var(--success)';
-      } catch (e) {
-        status.innerText = `SERVEUR DÉCONNECTÉ`;
-        dot.style.background = 'var(--danger)';
+        const d = await (await fetch('/health')).json();
+        document.getElementById('dot').style.cssText = 'background:var(--success);box-shadow:0 0 8px var(--success)';
+        document.getElementById('api-status').innerText = `ACTIF — ${d.version || '—'}`;
+      } catch {
+        document.getElementById('dot').style.background = 'var(--danger)';
+        document.getElementById('api-status').innerText = 'DÉCONNECTÉ';
       }
     }
+    checkHealth();
 
+    // Robot color switch
+    function setRobot(state) {
+      const root = document.documentElement;
+      const label = document.getElementById('robot-label');
+      const chest = document.getElementById('r-chest');
+
+      const themes = {
+        idle: { rc: '#6366f1', re: '#a5b4fc', rg: 'rgba(99,102,241,0.35)', label: 'EN VEILLE', lc: '#6366f1', cb: '0 0 18px #6366f1,0 0 36px #6366f1' },
+        fraud: { rc: '#ef4444', re: '#fca5a5', rg: 'rgba(239,68,68,0.45)', label: '⚠ ALERTE FRAUDE', lc: '#ef4444', cb: '0 0 28px #ef4444,0 0 60px #ef4444' },
+        safe: { rc: '#22c55e', re: '#86efac', rg: 'rgba(34,197,94,0.4)', label: '✔ SÉCURISÉ', lc: '#22c55e', cb: '0 0 28px #22c55e,0 0 60px #22c55e' }
+      };
+      const t = themes[state];
+      root.style.setProperty('--rc', t.rc);
+      root.style.setProperty('--re', t.re);
+      root.style.setProperty('--rg', t.rg);
+      label.style.color = t.lc;
+      label.innerText = t.label;
+      chest.style.background = t.rc;
+      chest.style.boxShadow = t.cb;
+    }
+
+    // Prediction
     async function predict() {
       const btn = document.getElementById('btn-text');
-      const robot = document.getElementById('robot');
       const resDiv = document.getElementById('result');
-
-      btn.innerText = 'CALCUL...';
       const dateVal = document.getElementById('Transaction_Date').value;
-      const amount = document.getElementById('Amount').value;
-      const cat = document.getElementById('Merchant_Category').options[document.getElementById('Merchant_Category').selectedIndex].text;
+      const amount = parseFloat(document.getElementById('Amount').value);
+      const catEl = document.getElementById('Merchant_Category');
+      const cat = catEl.options[catEl.selectedIndex].text;
+
+      btn.innerText = 'ANALYSE…';
+      setRobot('idle');
+      resDiv.style.display = 'none';
 
       const payload = {
-        Amount: parseFloat(amount),
+        Amount: amount,
         Transaction_Date: dateVal.replace('T', ' ') + ':00',
-        Merchant_Category: document.getElementById('Merchant_Category').value,
+        Merchant_Category: catEl.value,
         Card_Type: document.getElementById('Card_Type').value,
         Transaction_Type: document.getElementById('Transaction_Type').value,
         Country: document.getElementById('Country').value,
@@ -348,46 +695,58 @@
       };
 
       try {
-        const response = await fetch('/predict', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const data = await (await fetch('/predict', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
-        });
+        })).json();
 
-        const data = await response.json();
-        const proba = (data.probability * 100).toFixed(2);
-        const confidence = (100 - (data.probability * 100)).toFixed(2);
+        // ── Robust fallbacks ──────────────────────
+        const pred = data.prediction ?? 0;
+        const proba = typeof data.probability === 'number' ? data.probability : 0;
+        const msg = typeof data.message === 'string' && data.message.length > 0
+          ? data.message
+          : (pred === 1 ? 'Activité suspecte détectée !' : 'La transaction semble légitime.');
+        const ver = data.version ?? 'N/A';
+        const risk = (proba * 100).toFixed(2);
+        const conf = ((1 - proba) * 100).toFixed(2);
 
         resDiv.style.display = 'block';
 
-        if (data.prediction === 1) {
-          robot.style.filter = 'hue-rotate(280deg) saturate(2.5) contrast(1.2) drop-shadow(0 0 40px red)';
+        if (pred === 1) {
+          setRobot('fraud');
           resDiv.innerHTML = `
-            <div class="res-content fraud-bg">
-              <h3 style="color:var(--danger)">🚨 ${data.message}</h3>
-              <p style="font-size:0.85rem; color:#94a3b8; margin: 10px 0;">Paiement de ${amount}$ en ${cat} suspecté.</p>
-              <div style="background:rgba(239,68,68,0.1); padding:12px; border-radius:12px; font-weight:700; color:var(--danger)">Risque : ${proba}%</div>
-              <p style="font-size:0.65rem; color:#64748b; margin-top:10px;">Modèle : ${data.version}</p>
+          <div class="ri fraud-th">
+            <h3 style="color:var(--danger)">🚨 ${msg}</h3>
+            <p>Paiement de <b>${amount.toFixed(2)} $</b> — <b>${cat}</b></p>
+            <div class="score-bar" style="background:rgba(239,68,68,0.1);color:var(--danger)">
+              Risque de fraude : <b>${risk} %</b>
             </div>
-          `;
+            <div class="meta">Modèle : ${ver}</div>
+          </div>`;
         } else {
-          robot.style.filter = 'none';
+          setRobot('safe');
           resDiv.innerHTML = `
-            <div class="res-content safe-bg">
-              <h3 style="color:var(--success)">✅ ${data.message}</h3>
-              <p style="font-size:0.85rem; color:#94a3b8; margin: 10px 0;">Transaction de ${amount}$ validée avec succès.</p>
-              <div style="background:rgba(34,197,94,0.1); padding:12px; border-radius:12px; font-weight:700; color:var(--success)">Confiance : ${confidence}%</div>
-              <p style="font-size:0.65rem; color:#64748b; margin-top:10px;">Modèle : ${data.version}</p>
+          <div class="ri safe-th">
+            <h3 style="color:var(--success)">✅ ${msg}</h3>
+            <p>Paiement de <b>${amount.toFixed(2)} $</b> (${cat}) validé.</p>
+            <div class="score-bar" style="background:rgba(34,197,94,0.1);color:var(--success)">
+              Score de confiance : <b>${conf} %</b>
             </div>
-          `;
+            <div class="meta">Modèle : ${ver}</div>
+          </div>`;
         }
-      } catch (e) {
-        alert("Erreur de connexion.");
+
+      } catch {
+        resDiv.style.display = 'block';
+        resDiv.innerHTML = `
+        <div class="ri" style="border-color:var(--danger);background:rgba(239,68,68,0.1)">
+          <h3 style="color:var(--danger)">❌ Erreur réseau</h3>
+          <p>Impossible de joindre l'API.</p>
+        </div>`;
       }
+
       btn.innerText = "LANCER L'ANALYSE";
     }
-
-    checkHealth();
   </script>
 </body>
 

@@ -86,18 +86,19 @@ def predict(txn: Transaction):
         
         # 5. Prediction
         pred  = int(model.predict(X_scaled)[0])
-        proba = float(model.predict_proba(X_scaled)[0][pred]) # Proba de la classe prédite
+        # Calcul de la probabilité de fraude (toujours la classe 1)
+        proba_fraud = float(model.predict_proba(X_scaled)[0][1])
         
         result = 'fraud' if pred == 1 else 'normal'
         PREDICT_COUNT.labels(version=MODEL_VERSION, result=result).inc()
         PREDICT_LATENCY.observe(time.time() - start)
         
-        log.info(f'Prediction: {result} proba={proba:.4f}')
+        log.info(f'Prediction: {result} proba={proba_fraud:.4f}')
         return {
             'prediction': pred,
-            'fraud_probability': proba if pred == 1 else 1-proba,
+            'fraud_probability': proba_fraud,
             'result': result,
-            'model_version': MODEL_VERSION
+            'version': MODEL_VERSION
         }
     except Exception as e:
         ERROR_COUNT.inc()

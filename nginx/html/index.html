@@ -31,7 +31,7 @@
       justify-content: center;
     }
 
-    /* ── CARD (reproduit le Card de shadcn/ui) ── */
+    /* ── CARD ── */
     .card {
       position: relative;
       width: min(96vw, 1100px);
@@ -41,6 +41,7 @@
       border-radius: 28px;
       overflow: hidden;
       display: flex;
+      transition: border-color 0.7s, box-shadow 0.7s;
     }
 
     /* ── SPOTLIGHT ── */
@@ -48,16 +49,12 @@
       pointer-events: none;
       position: absolute;
       z-index: 0;
-      /* reproduit exactement l'effet Spotlight Tailwind */
       background: radial-gradient(ellipse 60% 55% at 35% -10%,
-          rgba(255, 255, 255, 0.18) 0%,
-          rgba(255, 255, 255, 0.06) 40%,
-          transparent 70%);
+          rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 40%, transparent 70%);
       width: 100%;
       height: 100%;
       top: 0;
       left: 0;
-      transition: opacity 0.6s ease;
     }
 
     /* ── LEFT PANEL ── */
@@ -68,40 +65,37 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 52px 48px;
-      gap: 0;
+      padding: 48px 44px;
     }
 
     .left h1 {
-      font-size: clamp(1.9rem, 3vw, 2.8rem);
+      font-size: clamp(1.8rem, 3vw, 2.7rem);
       font-weight: 800;
-      line-height: 1.15;
       letter-spacing: -1.5px;
       background: linear-gradient(to bottom, #f5f5f5 0%, #a3a3a3 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .subtitle {
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       color: #a3a3a3;
       line-height: 1.6;
-      margin-bottom: 28px;
-      max-width: 320px;
+      margin-bottom: 22px;
+      max-width: 300px;
     }
 
-    /* Status badge */
     .status-row {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 700;
       color: #525252;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
 
     .sdot {
@@ -113,7 +107,7 @@
       transition: background 0.5s, box-shadow 0.5s;
     }
 
-    /* Form grid */
+    /* Form */
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -127,11 +121,11 @@
     .field {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
     }
 
     .field label {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       font-weight: 700;
       color: #525252;
       text-transform: uppercase;
@@ -143,28 +137,27 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       color: #e5e5e5;
-      padding: 9px 12px;
+      padding: 9px 11px;
       border-radius: 10px;
       font-size: 0.84rem;
       font-family: inherit;
       width: 100%;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s;
     }
 
     input:focus,
     select:focus {
       border-color: rgba(255, 255, 255, 0.3);
       outline: none;
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
     }
 
     select option {
       background: #111;
     }
 
-    /* Metal Button — Gold */
+    /* Metal Button */
     .metal-outer {
-      margin-top: 14px;
+      margin-top: 12px;
       padding: 1.5px;
       border-radius: 12px;
       background: linear-gradient(180deg, #917100, #EAD98F);
@@ -175,7 +168,6 @@
 
     .metal-outer:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
     }
 
     .metal-outer:active {
@@ -192,7 +184,7 @@
     .metal-inner {
       background: linear-gradient(180deg, #FFEBA1, #9B873F);
       border-radius: 10px;
-      height: 46px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -220,13 +212,11 @@
       left: 160%;
     }
 
-    /* Result block */
+    /* Result */
     #result {
       margin-top: 12px;
       display: none;
       animation: rpop 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-      border-radius: 14px;
-      overflow: hidden;
     }
 
     @keyframes rpop {
@@ -276,14 +266,16 @@
       border-color: rgba(34, 197, 94, 0.35);
     }
 
-    /* ── RIGHT : Spline ── */
+    /* ── RIGHT : Spline container ──
+       Le filter CSS s'applique ICI sur le wrapper, pas sur spline-viewer,
+       ce qui permet de traverser le Shadow DOM visuellement              */
     .right {
       flex: 1;
       position: relative;
       overflow: hidden;
+      transition: filter 0.75s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Spline viewer prend tout l'espace */
     spline-viewer {
       position: absolute;
       inset: 0;
@@ -291,30 +283,29 @@
       height: 100%;
     }
 
-    /* Overlay de couleur pour fraud/safe (par-dessus Spline) */
-    #spline-overlay {
+    /* Overlay coloré sur le robot — z-index > spline */
+    #overlay {
       position: absolute;
       inset: 0;
       pointer-events: none;
+      z-index: 5;
       opacity: 0;
-      transition: opacity 0.8s ease, background 0.8s ease;
-      border-radius: 0;
-      mix-blend-mode: color;
+      transition: opacity 0.7s ease, background 0.7s ease;
     }
 
-    /* Spinner fallback pendant chargement Spline */
+    /* Loader */
     .loader {
       position: absolute;
       inset: 0;
+      z-index: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 0;
     }
 
     .spinner {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       border: 3px solid rgba(255, 255, 255, 0.1);
       border-top-color: rgba(255, 255, 255, 0.6);
       border-radius: 50%;
@@ -326,23 +317,43 @@
         transform: rotate(360deg);
       }
     }
+
+    /* Animations de pulsation pour la carte */
+    @keyframes fraudGlow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.15);
+      }
+
+      50% {
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.6), 0 0 80px rgba(239, 68, 68, 0.3);
+      }
+    }
+
+    @keyframes safeGlow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);
+      }
+
+      50% {
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5), 0 0 70px rgba(34, 197, 94, 0.25);
+      }
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- ── CARD ────────────────────────────────────── -->
-  <div class="card">
-
-    <!-- Spotlight -->
+  <div class="card" id="card">
     <div class="spotlight" id="spotlight"></div>
 
     <!-- LEFT -->
     <div class="left">
       <h1>FraudShield AI</h1>
-      <p class="subtitle">
-        Détection de fraude bancaire en temps réel, propulsée par XGBoost et une IA de dernière génération.
-      </p>
+      <p class="subtitle">Détection de fraude bancaire en temps réel,<br>propulsée par XGBoost.</p>
 
       <div class="status-row">
         <div class="sdot" id="dot"></div>
@@ -350,17 +361,14 @@
       </div>
 
       <form id="form" class="grid" onsubmit="event.preventDefault(); predict();">
-
         <div class="field">
           <label>Montant ($)</label>
           <input type="number" step="0.01" id="Amount" value="250.00" required>
         </div>
-
         <div class="field">
           <label>Date & Heure</label>
           <input type="datetime-local" id="Transaction_Date" required>
         </div>
-
         <div class="field full">
           <label>Catégorie Marchand</label>
           <select id="Merchant_Category">
@@ -370,12 +378,10 @@
             <option value="Entertainment">Divertissement</option>
           </select>
         </div>
-
         <div class="field">
           <label>Distance (km)</label>
           <input type="number" step="0.1" id="Distance_From_Home" value="0.8">
         </div>
-
         <div class="field">
           <label>PIN Utilisé</label>
           <select id="Is_Pin_Used">
@@ -384,7 +390,6 @@
           </select>
         </div>
 
-        <!-- Hidden API fields -->
         <input type="hidden" id="Card_Type" value="Visa">
         <input type="hidden" id="Transaction_Type" value="POS">
         <input type="hidden" id="Country" value="France">
@@ -402,25 +407,23 @@
             </div>
           </div>
         </div>
-
       </form>
 
       <div id="result"></div>
     </div>
 
-    <!-- RIGHT : Spline scene -->
-    <div class="right">
+    <!-- RIGHT : Spline -->
+    <div class="right" id="right-container">
       <div class="loader" id="loader">
         <div class="spinner"></div>
       </div>
-
-      <!-- Overlay coloré qui teintera le robot -->
-      <div id="spline-overlay"></div>
-
-      <spline-viewer id="robot" url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-        style="position:absolute;inset:0;width:100%;height:100%;" loading="eager"></spline-viewer>
+      <div id="overlay"></div>
+      <!-- Cache le badge "Built with Spline" injecté dans le shadow DOM -->
+      <div
+        style="position:absolute;bottom:0;right:0;width:200px;height:44px;background:#000;z-index:20;pointer-events:none;">
+      </div>
+      <spline-viewer id="robot" url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"></spline-viewer>
     </div>
-
   </div>
 
   <script>
@@ -429,18 +432,18 @@
     document.getElementById('Transaction_Date').value =
       new Date(n.getTime() - n.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
-    // Cacher le loader quand Spline est prêt
+    // Cacher loader quand Spline est prêt
     document.getElementById('robot').addEventListener('load', () => {
       document.getElementById('loader').style.display = 'none';
     });
 
-    // Spotlight suit la souris
-    document.querySelector('.card').addEventListener('mousemove', (e) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
-      const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+    // Spotlight dynamique
+    document.getElementById('card').addEventListener('mousemove', (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
+      const y = ((e.clientY - r.top) / r.height * 100).toFixed(1);
       document.getElementById('spotlight').style.background =
-        `radial-gradient(ellipse 55% 50% at ${x}% ${y}%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 45%, transparent 70%)`;
+        `radial-gradient(ellipse 55% 50% at ${x}% ${y}%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.05) 45%, transparent 70%)`;
     });
 
     // Health check
@@ -456,29 +459,38 @@
     }
     checkHealth();
 
-    // Robot reaction via overlay + CSS filter
+    /*
+     * setRobotState : applique le filtre sur le WRAPPER .right
+     * CSS filter sur le conteneur parent traverse le rendu du shadow DOM
+     * de spline-viewer — c'est la seule méthode qui fonctionne.
+     */
     function setRobotState(state) {
-      const overlay = document.getElementById('spline-overlay');
-      const robot = document.getElementById('robot');
+      const container = document.getElementById('right-container');
+      const overlay = document.getElementById('overlay');
+      const card = document.getElementById('card');
 
       if (state === 'fraud') {
-        // Filtre rouge intense
-        robot.style.filter = 'hue-rotate(300deg) saturate(3) brightness(0.9)';
-        overlay.style.background = 'rgba(239,68,68,0.15)';
-        overlay.style.opacity = '1';
+        /* Filtre sur le conteneur (pas sur spline-viewer directement) */
+        container.style.filter = 'hue-rotate(300deg) saturate(3) brightness(0.8) contrast(1.2)';
+        /* Overlay rouge radial par-dessus */
+        overlay.style.cssText = 'opacity:1; background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(239,68,68,0.4) 0%, rgba(239,68,68,0.05) 70%);';
+        /* Lueur rouge sur la bordure de la carte */
+        card.style.borderColor = 'rgba(239,68,68,0.6)';
+        card.style.animation = 'fraudGlow 1.6s ease-in-out infinite';
       } else if (state === 'safe') {
-        // Filtre vert
-        robot.style.filter = 'hue-rotate(100deg) saturate(2) brightness(1.05)';
-        overlay.style.background = 'rgba(34,197,94,0.12)';
-        overlay.style.opacity = '1';
+        container.style.filter = 'hue-rotate(120deg) saturate(2) brightness(1.05)';
+        overlay.style.cssText = 'opacity:1; background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.04) 70%);';
+        card.style.borderColor = 'rgba(34,197,94,0.5)';
+        card.style.animation = 'safeGlow 1.6s ease-in-out infinite';
       } else {
-        // Reset
-        robot.style.filter = 'none';
+        container.style.filter = 'none';
         overlay.style.opacity = '0';
+        card.style.borderColor = 'rgba(255,255,255,0.08)';
+        card.style.animation = 'none';
       }
     }
 
-    // Predict
+    // Prediction
     async function predict() {
       const btn = document.getElementById('btn-text');
       const resDiv = document.getElementById('result');
@@ -514,7 +526,7 @@
 
         const pred = data.prediction ?? 0;
         const proba = typeof data.probability === 'number' ? data.probability : 0;
-        const msg = (typeof data.message === 'string' && data.message.trim().length > 0)
+        const msg = (typeof data.message === 'string' && data.message.trim())
           ? data.message
           : (pred === 1 ? 'Activité suspecte détectée !' : 'La transaction semble légitime.');
         const ver = data.version ?? 'N/A';
@@ -526,36 +538,31 @@
         if (pred === 1) {
           setRobotState('fraud');
           resDiv.innerHTML = `
-            <div class="ri fraud-th">
-              <h3 style="color:#ef4444">🚨 ${msg}</h3>
-              <p>Paiement de <b>${amount.toFixed(2)} $</b> — <b>${cat}</b></p>
-              <div class="score" style="background:rgba(239,68,68,0.1);color:#ef4444">
-                Risque de fraude : <b>${risk} %</b>
-              </div>
-              <div class="meta">Modèle : ${ver}</div>
-            </div>`;
+          <div class="ri fraud-th">
+            <h3 style="color:#ef4444">🚨 ${msg}</h3>
+            <p>Paiement de <b>${amount.toFixed(2)} $</b> — <b>${cat}</b></p>
+            <div class="score" style="background:rgba(239,68,68,0.1);color:#ef4444">Risque : <b>${risk} %</b></div>
+            <div class="meta">Modèle : ${ver}</div>
+          </div>`;
         } else {
           setRobotState('safe');
           resDiv.innerHTML = `
-            <div class="ri safe-th">
-              <h3 style="color:#22c55e">✅ ${msg}</h3>
-              <p>Paiement de <b>${amount.toFixed(2)} $</b> (${cat}) validé.</p>
-              <div class="score" style="background:rgba(34,197,94,0.1);color:#22c55e">
-                Score de confiance : <b>${conf} %</b>
-              </div>
-              <div class="meta">Modèle : ${ver}</div>
-            </div>`;
+          <div class="ri safe-th">
+            <h3 style="color:#22c55e">✅ ${msg}</h3>
+            <p>Paiement de <b>${amount.toFixed(2)} $</b> (${cat}) validé.</p>
+            <div class="score" style="background:rgba(34,197,94,0.1);color:#22c55e">Confiance : <b>${conf} %</b></div>
+            <div class="meta">Modèle : ${ver}</div>
+          </div>`;
         }
 
       } catch {
         resDiv.style.display = 'block';
         resDiv.innerHTML = `
-          <div class="ri" style="border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.08)">
-            <h3 style="color:#ef4444">❌ Erreur réseau</h3>
-            <p>Impossible de joindre l'API d'analyse.</p>
-          </div>`;
+        <div class="ri" style="border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.08)">
+          <h3 style="color:#ef4444">❌ Erreur réseau</h3>
+          <p>Impossible de joindre l'API.</p>
+        </div>`;
       }
-
       btn.innerText = "LANCER L'ANALYSE";
     }
   </script>

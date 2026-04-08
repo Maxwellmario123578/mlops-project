@@ -581,16 +581,25 @@
           body: JSON.stringify(payload)
         });
         const data = await resp.json();
+        console.log("API Response:", data); // Pour debug
 
         const isFraud = data.prediction === 1;
         setRobotState(isFraud ? 'fraud' : 'safe');
+
+        // Calcul robuste : si c'est une fraude, on montre la proba de fraude. 
+        // Si c'est sûr, on montre la confiance (1 - proba de fraude).
+        let probaValue = typeof data.probability === 'number' ? data.probability : 0;
+        let displayValue = isFraud ? probaValue : (1 - probaValue);
+
+        // Sécurité anti-NaN
+        if (isNaN(displayValue)) displayValue = 0;
 
         resDiv.innerHTML = `
         <div class="ri ${isFraud ? 'fraud-th' : 'safe-th'}">
           <h3 style="color:${isFraud ? '#ef4444' : '#22c55e'}">${isFraud ? '⚠️ FRAUDE DÉTECTÉE' : '✅ TRANSACTION SÛRE'}</h3>
           <p>${data.message || (isFraud ? 'Alerte : Modèle suspect.' : 'Transaction autorisée.')}</p>
           <div class="score" style="background:${isFraud ? 'rgba(239,68,68,0.1)' : 'rgba(34,197,94,0.1)'}; color:${isFraud ? '#f87171' : '#4ade80'}">
-            ${isFraud ? 'Probabilité' : 'Confiance'} : ${(data.probability * 100).toFixed(1)}%
+            ${isFraud ? 'Probabilité de fraude' : 'Score de confiance'} : ${(displayValue * 100).toFixed(1)}%
           </div>
         </div>
       `;

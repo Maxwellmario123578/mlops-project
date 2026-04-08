@@ -81,14 +81,23 @@ def predict(txn: Transaction):
         # 3. Réalignement des colonnes dans le bon ordre
         df_input = df_input[feature_names]
         
+        # Remplacement de toute valeur NaN résiduelle par 0 (sécurité)
+        df_input = df_input.fillna(0)
+        
         # 4. Scaling
         X_scaled = scaler.transform(df_input)
         
         # 5. Prediction
-        pred  = int(model.predict(X_scaled)[0])
-        # Calcul de la probabilité de fraude (toujours la classe 1)
-        proba_fraud = float(model.predict_proba(X_scaled)[0][1])
+        results_pred = model.predict(X_scaled)
+        results_proba = model.predict_proba(X_scaled)
         
+        pred = int(results_pred[0])
+        proba_fraud = float(results_proba[0][1])
+        
+        # Sécurité pour le JSON : NaN -> 0.0
+        if np.isnan(proba_fraud):
+            proba_fraud = 0.0
+            
         result = 'fraud' if pred == 1 else 'normal'
         PREDICT_COUNT.labels(version=MODEL_VERSION, result=result).inc()
         PREDICT_LATENCY.observe(time.time() - start)

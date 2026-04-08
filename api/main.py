@@ -94,11 +94,16 @@ def predict(txn: Transaction):
         PREDICT_LATENCY.observe(time.time() - start)
         
         log.info(f'Prediction: {result} proba={proba_fraud:.4f}')
+        
+        # Message métier pour l'UI
+        message = "La transaction semble légitime." if pred == 0 else "Activité suspecte détectée !"
+        
         return {
-            'prediction': pred,
-            'fraud_probability': proba_fraud,
-            'result': result,
-            'version': MODEL_VERSION
+            "prediction": pred,
+            "probability": proba_fraud,
+            "status": "normal" if pred == 0 else "fraud",
+            "message": message,
+            "version": MODEL_VERSION
         }
     except Exception as e:
         ERROR_COUNT.inc()

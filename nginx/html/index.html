@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FraudShield AI | Next-Gen Monitoring</title>
+  <title>FraudShield AI | High-Fidelity Monitoring</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
@@ -16,7 +16,7 @@
       --success: #22c55e;
       --danger: #ef4444;
       --bg-dark: #020617;
-      --glass-bg: rgba(15, 23, 42, 0.7);
+      --glass-bg: rgba(15, 23, 42, 0.75);
       --glass-border: rgba(255, 255, 255, 0.1);
     }
 
@@ -35,66 +35,75 @@
       overflow: hidden;
     }
 
-    /* --- BACKGROUND ROBOT --- */
+    /* --- SPLINE BACKGROUND --- */
     #spline-container {
       position: fixed;
       top: 0;
       right: 0;
-      width: 65vw;
+      width: 100vw;
       height: 100vh;
       z-index: 1;
       pointer-events: none;
-      transition: filter 0.5s ease;
+      transition: filter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* --- SIDEBAR PANEL --- */
+    /* --- MAIN PANEL --- */
     .main-wrapper {
       position: relative;
-      z-index: 2;
+      z-index: 10;
       width: 100%;
-      max-width: 500px;
-      padding: 30px;
-      background: linear-gradient(90deg, var(--bg-dark) 50%, transparent 100%);
+      max-width: 1200px;
+      padding: 40px;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 100vh;
+      align-items: center;
     }
 
-    .container {
-      backdrop-filter: blur(25px);
+    .glass-card {
+      backdrop-filter: blur(30px);
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
-      border-radius: 32px;
-      padding: 35px;
-      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+      border-radius: 40px;
+      padding: 45px;
+      width: 480px;
+      box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.8);
+      position: relative;
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 8px;
-      background: linear-gradient(to right, #fff, #94a3b8);
+      letter-spacing: -1.5px;
+      margin-bottom: 5px;
+      background: linear-gradient(to bottom, #fff, #94a3b8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .badge-status {
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-size: 0.7rem;
       font-weight: 700;
       color: #64748b;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 20px;
-      display: block;
+      margin-bottom: 30px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 12px var(--success);
     }
 
     /* --- FORM --- */
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 15px;
+      gap: 20px;
     }
 
     .col-span {
@@ -104,13 +113,14 @@
     .input-box {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     label {
       font-size: 0.75rem;
       color: #94a3b8;
       font-weight: 600;
+      text-transform: uppercase;
     }
 
     input,
@@ -118,128 +128,159 @@
       background: rgba(0, 0, 0, 0.4);
       border: 1px solid var(--glass-border);
       color: white;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      transition: 0.3s;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      transition: all 0.3s;
     }
 
     input:focus {
       border-color: var(--primary);
       outline: none;
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
     }
 
-    /* --- METAL BUTTON --- */
-    .metal-btn {
+    /* --- HIGH-FIDELITY METAL BUTTON --- */
+    .metal-btn-wrapper {
       position: relative;
-      background: linear-gradient(180deg, #444, #000);
-      padding: 1.5px;
-      border-radius: 14px;
+      background: linear-gradient(180deg, #917100, #EAD98F);
+      /* Gold Variant */
+      padding: 1.25px;
+      border-radius: 12px;
       cursor: pointer;
-      margin-top: 10px;
-      transition: transform 0.1s;
+      margin-top: 15px;
+      transition: all 0.25s cubic-bezier(0.1, 0.4, 0.2, 1);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
     }
 
     .metal-btn-inner {
-      background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%);
-      border-radius: 13px;
-      height: 54px;
+      position: relative;
+      background: linear-gradient(180deg, #FFFDDD 0%, #856807 50%, #FFF1B3 100%);
+      border-radius: 11px;
+      padding: 1px;
+    }
+
+    .metal-btn {
+      position: relative;
+      background: linear-gradient(180deg, #FFEBA1, #9B873F);
+      height: 56px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
+      color: #FFFDE5;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      position: relative;
+      letter-spacing: 1.5px;
+      text-shadow: 0 -1px 0 rgb(178 140 2);
       overflow: hidden;
     }
 
-    .metal-btn:active {
-      transform: translateY(2px);
+    .metal-btn-wrapper:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
     }
 
-    .metal-btn:hover .shine {
-      left: 150%;
+    .metal-btn-wrapper:active {
+      transform: translateY(1px);
+      scale: 0.98;
     }
 
-    .shine {
+    .shine-effect {
       position: absolute;
       top: 0;
       left: -100%;
       width: 50%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
       transition: 0.6s;
     }
 
-    /* --- RESULTS --- */
+    .metal-btn-wrapper:hover .shine-effect {
+      left: 150%;
+    }
+
+    /* --- RESULTS UI --- */
     #result {
       margin-top: 25px;
-      padding: 20px;
-      border-radius: 20px;
+      border-radius: 24px;
       display: none;
+      overflow: hidden;
+      animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+
+    .res-content {
+      padding: 25px;
       border: 1px solid var(--glass-border);
     }
 
-    .fraud-ui {
+    .fraud-bg {
       background: rgba(239, 68, 68, 0.15);
       border-color: var(--danger);
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
     }
 
-    .safe-ui {
+    .safe-bg {
       background: rgba(34, 197, 94, 0.15);
       border-color: var(--success);
-      box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
     }
   </style>
 </head>
 
 <body>
 
+  <!-- BACKGROUND ROBOT -->
   <div id="spline-container">
-    <!-- Robot Spline -->
-    <spline-viewer id="robot" url="https://prod.spline.design/kZqon7WkYAsmSpxW/scene.splinecode"></spline-viewer>
+    <spline-viewer id="robot" url="https://prod.spline.design/i9VvT8fsh5N1lA4P/scene.splinecode"></spline-viewer>
   </div>
 
   <div class="main-wrapper">
-    <div class="container">
+    <div class="glass-card">
       <header>
         <h1>FraudShield AI</h1>
-        <span class="badge-status" id="api-status">Initialisation...</span>
+        <div class="status-badge">
+          <div class="dot" id="dot"></div>
+          <span id="api-status">Initialisation...</span>
+        </div>
       </header>
 
-      <form id="predictForm" class="form-grid" onsubmit="event.preventDefault(); predict();">
+      <form id="fraudForm" class="form-grid" onsubmit="event.preventDefault(); predict();">
         <div class="input-box">
           <label>Montant ($)</label>
-          <input type="number" step="0.01" id="Amount" value="150.00" required>
+          <input type="number" step="0.01" id="Amount" value="250.00" required>
         </div>
         <div class="input-box">
-          <label>Date Transaction</label>
+          <label>Date & Heure</label>
           <input type="datetime-local" id="Transaction_Date" required>
         </div>
         <div class="input-box col-span">
-          <label>Catégorie Marchand</label>
+          <label>Marchand</label>
           <select id="Merchant_Category">
             <option value="Retail">Commerce de détail</option>
             <option value="Online Store">Boutique en ligne</option>
+            <option value="Travel">Voyages & Transport</option>
             <option value="Entertainment">Divertissement</option>
-            <option value="Travel">Voyage</option>
           </select>
+        </div>
+        <div class="input-box">
+          <label>Distance Home</label>
+          <input type="number" id="Distance_From_Home" value="0.8">
         </div>
         <div class="input-box">
           <label>PIN Utilisé</label>
           <select id="Is_Pin_Used">
-            <option value="1">Oui</option>
-            <option value="0">Non</option>
+            <option value="1">Oui (PIN)</option>
+            <option value="0">Non (Sans contact)</option>
           </select>
         </div>
-        <div class="input-box">
-          <label>Distance (km)</label>
-          <input type="number" id="Distance_From_Home" value="1.2">
-        </div>
 
-        <!-- Valeurs par défaut pour cohérence API -->
         <input type="hidden" id="Card_Type" value="Visa">
         <input type="hidden" id="Transaction_Type" value="POS">
         <input type="hidden" id="Country" value="France">
@@ -248,10 +289,12 @@
         <input type="hidden" id="Is_Chip" value="1">
 
         <div class="col-span">
-          <div class="metal-btn" onclick="document.getElementById('predictForm').requestSubmit();">
+          <div class="metal-btn-wrapper" onclick="document.getElementById('fraudForm').requestSubmit();">
             <div class="metal-btn-inner">
-              <div class="shine"></div>
-              <span id="btn-text">Lancer l'analyse</span>
+              <div class="metal-btn">
+                <div class="shine-effect"></div>
+                <span id="btn-text">Lancer l'analyse</span>
+              </div>
             </div>
           </div>
         </div>
@@ -262,18 +305,20 @@
   </div>
 
   <script>
-    // Config Date
     const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById('Transaction_Date').value = now.toISOString().slice(0, 16);
+    document.getElementById('Transaction_Date').value = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
     async function checkHealth() {
+      const status = document.getElementById('api-status');
+      const dot = document.getElementById('dot');
       try {
         const r = await fetch('/health');
         const d = await r.json();
-        document.getElementById('api-status').innerText = `● Système Connecté (v${d.version})`;
+        status.innerText = `SYSTÈME ACTIF (${d.version})`;
+        dot.style.background = 'var(--success)';
       } catch (e) {
-        document.getElementById('api-status').innerText = `● Système Hors-ligne`;
+        status.innerText = `SERVEUR DÉCONNECTÉ`;
+        dot.style.background = 'var(--danger)';
       }
     }
 
@@ -282,11 +327,13 @@
       const robot = document.getElementById('robot');
       const resDiv = document.getElementById('result');
 
-      btn.innerText = 'ANALYSE EN COURS...';
+      btn.innerText = 'CALCUL...';
       const dateVal = document.getElementById('Transaction_Date').value;
+      const amount = document.getElementById('Amount').value;
+      const cat = document.getElementById('Merchant_Category').options[document.getElementById('Merchant_Category').selectedIndex].text;
 
       const payload = {
-        Amount: parseFloat(document.getElementById('Amount').value),
+        Amount: parseFloat(amount),
         Transaction_Date: dateVal.replace('T', ' ') + ':00',
         Merchant_Category: document.getElementById('Merchant_Category').value,
         Card_Type: document.getElementById('Card_Type').value,
@@ -308,24 +355,34 @@
         });
 
         const data = await response.json();
+        const proba = (data.probability * 100).toFixed(2);
+        const confidence = (100 - (data.probability * 100)).toFixed(2);
+
         resDiv.style.display = 'block';
 
-        const proba = data.fraud_probability !== undefined ? (data.fraud_probability * 100).toFixed(2) : "0.00";
-        const v = data.version || "N/A";
-
         if (data.prediction === 1) {
-          robot.style.filter = 'hue-rotate(280deg) saturate(2) drop-shadow(0 0 50px red)';
-          resDiv.className = 'fraud-ui';
-          resDiv.innerHTML = `<h3 style="color:var(--danger)">🚨 FRAUDE DÉTECTÉE</h3>
-                              <p style="font-size:0.9rem; margin-top:5px; color:#9dabbd">Risque : <b>${proba}%</b> | v${v}</p>`;
+          robot.style.filter = 'hue-rotate(280deg) saturate(2.5) contrast(1.2) drop-shadow(0 0 40px red)';
+          resDiv.innerHTML = `
+            <div class="res-content fraud-bg">
+              <h3 style="color:var(--danger)">🚨 ${data.message}</h3>
+              <p style="font-size:0.85rem; color:#94a3b8; margin: 10px 0;">Paiement de ${amount}$ en ${cat} suspecté.</p>
+              <div style="background:rgba(239,68,68,0.1); padding:12px; border-radius:12px; font-weight:700; color:var(--danger)">Risque : ${proba}%</div>
+              <p style="font-size:0.65rem; color:#64748b; margin-top:10px;">Modèle : ${data.version}</p>
+            </div>
+          `;
         } else {
           robot.style.filter = 'none';
-          resDiv.className = 'safe-ui';
-          resDiv.innerHTML = `<h3 style="color:var(--success)">✅ TRANSACTION SÉCURISÉE</h3>
-                              <p style="font-size:0.9rem; margin-top:5px; color:#9dabbd">Confiance : <b>${(100 - proba).toFixed(2)}%</b> | v${v}</p>`;
+          resDiv.innerHTML = `
+            <div class="res-content safe-bg">
+              <h3 style="color:var(--success)">✅ ${data.message}</h3>
+              <p style="font-size:0.85rem; color:#94a3b8; margin: 10px 0;">Transaction de ${amount}$ validée avec succès.</p>
+              <div style="background:rgba(34,197,94,0.1); padding:12px; border-radius:12px; font-weight:700; color:var(--success)">Confiance : ${confidence}%</div>
+              <p style="font-size:0.65rem; color:#64748b; margin-top:10px;">Modèle : ${data.version}</p>
+            </div>
+          `;
         }
       } catch (e) {
-        alert("Erreur de connexion API.");
+        alert("Erreur de connexion.");
       }
       btn.innerText = "LANCER L'ANALYSE";
     }

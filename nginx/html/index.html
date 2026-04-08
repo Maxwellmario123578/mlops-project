@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FraudShield AI</title>
+  <title>FraudShield AI — Production</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.94/build/spline-viewer.js"></script>
@@ -34,8 +34,8 @@
     /* ── CARD ── */
     .card {
       position: relative;
-      width: min(96vw, 1100px);
-      height: min(92vh, 620px);
+      width: min(96vw, 1200px);
+      height: min(94vh, 720px);
       background: rgba(0, 0, 0, 0.96);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 28px;
@@ -59,59 +59,75 @@
 
     /* ── LEFT PANEL ── */
     .left {
-      flex: 0 0 48%;
+      flex: 0 0 500px;
       position: relative;
       z-index: 10;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 48px 44px;
+      padding: 40px;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .left h1 {
-      font-size: clamp(1.8rem, 3vw, 2.7rem);
+      font-size: 2.2rem;
       font-weight: 800;
       letter-spacing: -1.5px;
       background: linear-gradient(to bottom, #f5f5f5 0%, #a3a3a3 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
     }
 
     .subtitle {
-      font-size: 0.85rem;
-      color: #a3a3a3;
-      line-height: 1.6;
-      margin-bottom: 22px;
-      max-width: 300px;
+      font-size: 0.8rem;
+      color: #737373;
+      line-height: 1.5;
+      margin-bottom: 20px;
     }
 
     .status-row {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       font-weight: 700;
       color: #525252;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 18px;
+      margin-bottom: 15px;
     }
 
     .sdot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: #22c55e;
       box-shadow: 0 0 8px #22c55e;
-      transition: background 0.5s, box-shadow 0.5s;
     }
 
-    /* Form */
+    /* Form with scroll if needed (but we keep it tight) */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+      mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+    }
+
+    .scroll-area::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
     .full {
@@ -125,7 +141,7 @@
     }
 
     .field label {
-      font-size: 0.6rem;
+      font-size: 0.58rem;
       font-weight: 700;
       color: #525252;
       text-transform: uppercase;
@@ -134,12 +150,12 @@
 
     input,
     select {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       color: #e5e5e5;
-      padding: 9px 11px;
-      border-radius: 10px;
-      font-size: 0.84rem;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
       font-family: inherit;
       width: 100%;
       transition: border-color 0.2s;
@@ -147,7 +163,7 @@
 
     input:focus,
     select:focus {
-      border-color: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.25);
       outline: none;
     }
 
@@ -157,13 +173,12 @@
 
     /* Metal Button */
     .metal-outer {
-      margin-top: 12px;
-      padding: 1.5px;
-      border-radius: 12px;
+      padding: 1.2px;
+      border-radius: 10px;
       background: linear-gradient(180deg, #917100, #EAD98F);
       cursor: pointer;
-      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.7);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
+      transition: transform 0.2s;
     }
 
     .metal-outer:hover {
@@ -177,23 +192,23 @@
 
     .metal-mid {
       background: linear-gradient(180deg, #FFFDDD 0%, #856807 50%, #FFF1B3 100%);
-      border-radius: 11px;
+      border-radius: 9px;
       padding: 1px;
     }
 
     .metal-inner {
       background: linear-gradient(180deg, #FFEBA1, #9B873F);
-      border-radius: 10px;
-      height: 44px;
+      border-radius: 8px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 0.82rem;
-      letter-spacing: 1.5px;
+      font-size: 0.78rem;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
       color: #FFFDE5;
-      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4);
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
       position: relative;
       overflow: hidden;
     }
@@ -205,7 +220,7 @@
       width: 45%;
       height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: 0.55s;
+      transition: 0.5s;
     }
 
     .metal-outer:hover .shine {
@@ -214,66 +229,54 @@
 
     /* Result */
     #result {
-      margin-top: 12px;
-      display: none;
+      margin-top: 15px;
       animation: rpop 0.4s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
     @keyframes rpop {
       from {
         opacity: 0;
-        transform: scale(0.95);
+        transform: translateY(10px);
       }
     }
 
     .ri {
-      padding: 13px 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
     }
 
     .ri h3 {
-      font-size: 0.85rem;
-      margin-bottom: 5px;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
     }
 
     .ri p {
-      font-size: 0.74rem;
+      font-size: 0.7rem;
       color: #737373;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .score {
-      padding: 8px 12px;
-      border-radius: 9px;
+      padding: 6px 10px;
+      border-radius: 6px;
       font-weight: 700;
-      font-size: 0.82rem;
+      font-size: 0.75rem;
     }
 
     .meta {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       color: #404040;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
-    .fraud-th {
-      background: rgba(239, 68, 68, 0.1);
-      border-color: rgba(239, 68, 68, 0.35);
-    }
-
-    .safe-th {
-      background: rgba(34, 197, 94, 0.1);
-      border-color: rgba(34, 197, 94, 0.35);
-    }
-
-    /* ── RIGHT : Spline container ──
-       Le filter CSS s'applique ICI sur le wrapper, pas sur spline-viewer,
-       ce qui permet de traverser le Shadow DOM visuellement              */
+    /* ── RIGHT ── */
     .right {
       flex: 1;
       position: relative;
       overflow: hidden;
-      transition: filter 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: filter 0.8s ease;
     }
 
     spline-viewer {
@@ -283,17 +286,26 @@
       height: 100%;
     }
 
-    /* Overlay coloré sur le robot — z-index > spline */
     #overlay {
       position: absolute;
       inset: 0;
-      pointer-events: none;
       z-index: 5;
       opacity: 0;
-      transition: opacity 0.7s ease, background 0.7s ease;
+      transition: 0.7s;
+      pointer-events: none;
     }
 
-    /* Loader */
+    #watermark-fix {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 180px;
+      height: 45px;
+      background: #000;
+      z-index: 20;
+      pointer-events: none;
+    }
+
     .loader {
       position: absolute;
       inset: 0;
@@ -304,12 +316,12 @@
     }
 
     .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(255, 255, 255, 0.1);
-      border-top-color: rgba(255, 255, 255, 0.6);
+      width: 30px;
+      height: 30px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #fff;
       border-radius: 50%;
-      animation: spin 0.9s linear infinite;
+      animation: spin 0.8s linear infinite;
     }
 
     @keyframes spin {
@@ -318,16 +330,15 @@
       }
     }
 
-    /* Animations de pulsation pour la carte */
     @keyframes fraudGlow {
 
       0%,
       100% {
-        box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.15);
+        box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);
       }
 
       50% {
-        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.6), 0 0 80px rgba(239, 68, 68, 0.3);
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.25);
       }
     }
 
@@ -335,11 +346,11 @@
 
       0%,
       100% {
-        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);
+        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.08);
       }
 
       50% {
-        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5), 0 0 70px rgba(34, 197, 94, 0.25);
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5), 0 0 50px rgba(34, 197, 94, 0.2);
       }
     }
   </style>
@@ -350,138 +361,188 @@
   <div class="card" id="card">
     <div class="spotlight" id="spotlight"></div>
 
-    <!-- LEFT -->
     <div class="left">
       <h1>FraudShield AI</h1>
-      <p class="subtitle">Détection de fraude bancaire en temps réel,<br>propulsée par XGBoost.</p>
+      <p class="subtitle">Analyse transactionnelle avancée alignée sur le dataset 2025.</p>
 
       <div class="status-row">
         <div class="sdot" id="dot"></div>
-        <span id="api-status">Connexion…</span>
+        <span id="api-status">Syncing...</span>
       </div>
 
-      <form id="form" class="grid" onsubmit="event.preventDefault(); predict();">
-        <div class="field">
-          <label>Montant ($)</label>
-          <input type="number" step="0.01" id="Amount" value="250.00" required>
-        </div>
-        <div class="field">
-          <label>Date & Heure</label>
-          <input type="datetime-local" id="Transaction_Date" required>
-        </div>
-        <div class="field full">
-          <label>Catégorie Marchand</label>
-          <select id="Merchant_Category">
-            <option value="Retail">Commerce de détail</option>
-            <option value="Online Store">Boutique en ligne</option>
-            <option value="Travel">Voyages & Transport</option>
-            <option value="Entertainment">Divertissement</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Distance (km)</label>
-          <input type="number" step="0.1" id="Distance_From_Home" value="0.8">
-        </div>
-        <div class="field">
-          <label>PIN Utilisé</label>
-          <select id="Is_Pin_Used">
-            <option value="1">Oui</option>
-            <option value="0">Non</option>
-          </select>
-        </div>
+      <div class="scroll-area">
+        <form id="form" class="grid" onsubmit="event.preventDefault(); predict();">
+          <!-- Montant -->
+          <div class="field full">
+            <label>Montant de la transaction ($)</label>
+            <input type="number" step="0.01" id="Amount" value="45.99" required>
+          </div>
 
-        <input type="hidden" id="Card_Type" value="Visa">
-        <input type="hidden" id="Transaction_Type" value="POS">
-        <input type="hidden" id="Country" value="France">
-        <input type="hidden" id="Device_Type" value="Mobile">
-        <input type="hidden" id="Is_International" value="0">
-        <input type="hidden" id="Is_Chip" value="1">
+          <!-- Date -->
+          <div class="field">
+            <label>Date & Heure</label>
+            <input type="datetime-local" id="Transaction_Date" required>
+          </div>
 
-        <div class="full">
-          <div class="metal-outer" onclick="document.getElementById('form').requestSubmit()">
-            <div class="metal-mid">
-              <div class="metal-inner">
-                <div class="shine"></div>
-                <span id="btn-text">Lancer l'analyse</span>
+          <!-- Categorie -->
+          <div class="field">
+            <label>Catégorie</label>
+            <select id="Merchant_Category">
+              <option value="Electronics">Électronique</option>
+              <option value="Fuel">Carburant</option>
+              <option value="Health">Santé</option>
+              <option value="Groceries">Courses</option>
+              <option value="Online Services" selected>Services Web</option>
+              <option value="Food">Restauration</option>
+              <option value="Clothing">Vêtements</option>
+              <option value="Utilities">Services Publics</option>
+              <option value="Entertainment">Divertissement</option>
+              <option value="Travel">Voyages</option>
+            </select>
+          </div>
+
+          <!-- Card Type -->
+          <div class="field">
+            <label>Type de Carte</label>
+            <select id="Card_Type">
+              <option value="Gold">Gold</option>
+              <option value="Platinum">Platinum</option>
+              <option value="Debit">Debit</option>
+              <option value="Credit">Credit</option>
+            </select>
+          </div>
+
+          <!-- Transaction Type -->
+          <div class="field">
+            <label>Type de Transaction</label>
+            <select id="Transaction_Type">
+              <option value="POS">TPE (POS)</option>
+              <option value="Online">En ligne</option>
+              <option value="ATM">Retrait ATM</option>
+            </select>
+          </div>
+
+          <!-- Country -->
+          <div class="field">
+            <label>Pays</label>
+            <select id="Country">
+              <option value="France">France</option>
+              <option value="USA">USA</option>
+              <option value="UK">UK</option>
+              <option value="Canada">Canada</option>
+              <option value="Germany">Allemagne</option>
+              <option value="Australia">Australie</option>
+              <option value="India">Inde</option>
+              <option value="Singapore">Singapour</option>
+            </select>
+          </div>
+
+          <!-- Device -->
+          <div class="field">
+            <label>Appareil</label>
+            <select id="Device_Type">
+              <option value="Mobile">Mobile</option>
+              <option value="Web">Web</option>
+              <option value="Terminal">Terminal</option>
+            </select>
+          </div>
+
+          <!-- Distance -->
+          <div class="field">
+            <label>Distance Maison (km)</label>
+            <input type="number" step="0.1" id="Distance_From_Home" value="1.5">
+          </div>
+
+          <!-- Flags -->
+          <div class="field">
+            <label>International ?</label>
+            <select id="Is_International">
+              <option value="0">Non</option>
+              <option value="1">Oui</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Puce (Chip) ?</label>
+            <select id="Is_Chip">
+              <option value="1">Oui</option>
+              <option value="0">Non</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>PIN Utilisé ?</label>
+            <select id="Is_Pin_Used">
+              <option value="1">Oui</option>
+              <option value="0">Non</option>
+            </select>
+          </div>
+
+          <div class="full">
+            <div class="metal-outer" onclick="document.getElementById('form').requestSubmit()">
+              <div class="metal-mid">
+                <div class="metal-inner">
+                  <div class="shine"></div>
+                  <span id="btn-text">Vérifier la transaction</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
 
       <div id="result"></div>
     </div>
 
-    <!-- RIGHT : Spline -->
     <div class="right" id="right-container">
       <div class="loader" id="loader">
         <div class="spinner"></div>
       </div>
       <div id="overlay"></div>
-      <!-- Cache le badge "Built with Spline" injecté dans le shadow DOM -->
-      <div
-        style="position:absolute;bottom:0;right:0;width:200px;height:44px;background:#000;z-index:20;pointer-events:none;">
-      </div>
+      <div id="watermark-fix"></div>
       <spline-viewer id="robot" url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"></spline-viewer>
     </div>
   </div>
 
   <script>
-    // Init datetime
     const n = new Date();
-    document.getElementById('Transaction_Date').value =
-      new Date(n.getTime() - n.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    document.getElementById('Transaction_Date').value = new Date(n.getTime() - n.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
-    // Cacher loader quand Spline est prêt
-    document.getElementById('robot').addEventListener('load', () => {
-      document.getElementById('loader').style.display = 'none';
-    });
+    document.getElementById('robot').addEventListener('load', () => { document.getElementById('loader').style.display = 'none'; });
 
-    // Spotlight dynamique
     document.getElementById('card').addEventListener('mousemove', (e) => {
       const r = e.currentTarget.getBoundingClientRect();
       const x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
       const y = ((e.clientY - r.top) / r.height * 100).toFixed(1);
-      document.getElementById('spotlight').style.background =
-        `radial-gradient(ellipse 55% 50% at ${x}% ${y}%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.05) 45%, transparent 70%)`;
+      document.getElementById('spotlight').style.background = `radial-gradient(ellipse 55% 50% at ${x}% ${y}%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 40%, transparent 70%)`;
     });
 
-    // Health check
     async function checkHealth() {
       try {
         const d = await (await fetch('/health')).json();
-        document.getElementById('dot').style.cssText = 'background:#22c55e;box-shadow:0 0 8px #22c55e';
-        document.getElementById('api-status').innerText = `ACTIF — ${d.version || '—'}`;
+        document.getElementById('dot').style.background = '#22c55e';
+        document.getElementById('api-status').innerText = `SYSTEM ONLINE — ${d.version}`;
       } catch {
-        document.getElementById('dot').style.cssText = 'background:#ef4444;box-shadow:0 0 8px #ef4444';
-        document.getElementById('api-status').innerText = 'DÉCONNECTÉ';
+        document.getElementById('api-status').innerText = 'OFFLINE';
       }
     }
     checkHealth();
 
-    /*
-     * setRobotState : applique le filtre sur le WRAPPER .right
-     * CSS filter sur le conteneur parent traverse le rendu du shadow DOM
-     * de spline-viewer — c'est la seule méthode qui fonctionne.
-     */
     function setRobotState(state) {
       const container = document.getElementById('right-container');
       const overlay = document.getElementById('overlay');
       const card = document.getElementById('card');
 
       if (state === 'fraud') {
-        /* Filtre sur le conteneur (pas sur spline-viewer directement) */
-        container.style.filter = 'hue-rotate(300deg) saturate(3) brightness(0.8) contrast(1.2)';
-        /* Overlay rouge radial par-dessus */
-        overlay.style.cssText = 'opacity:1; background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(239,68,68,0.4) 0%, rgba(239,68,68,0.05) 70%);';
-        /* Lueur rouge sur la bordure de la carte */
-        card.style.borderColor = 'rgba(239,68,68,0.6)';
-        card.style.animation = 'fraudGlow 1.6s ease-in-out infinite';
+        container.style.filter = 'hue-rotate(300deg) saturate(3.5) brightness(0.8) contrast(1.2)';
+        overlay.style.cssText = 'opacity:1; background: radial-gradient(circle, rgba(239,68,68,0.4) 0%, transparent 70%);';
+        card.style.borderColor = '#ef4444';
+        card.style.animation = 'fraudGlow 1.5s infinite';
       } else if (state === 'safe') {
-        container.style.filter = 'hue-rotate(120deg) saturate(2) brightness(1.05)';
-        overlay.style.cssText = 'opacity:1; background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.04) 70%);';
-        card.style.borderColor = 'rgba(34,197,94,0.5)';
-        card.style.animation = 'safeGlow 1.6s ease-in-out infinite';
+        container.style.filter = 'hue-rotate(120deg) saturate(2.2) brightness(1.1)';
+        overlay.style.cssText = 'opacity:1; background: radial-gradient(circle, rgba(34,197,94,0.3) 0%, transparent 70%);';
+        card.style.borderColor = '#22c55e';
+        card.style.animation = 'safeGlow 1.5s infinite';
       } else {
         container.style.filter = 'none';
         overlay.style.opacity = '0';
@@ -490,80 +551,53 @@
       }
     }
 
-    // Prediction
     async function predict() {
       const btn = document.getElementById('btn-text');
       const resDiv = document.getElementById('result');
       const dateVal = document.getElementById('Transaction_Date').value;
-      const amount = parseFloat(document.getElementById('Amount').value);
-      const catEl = document.getElementById('Merchant_Category');
-      const cat = catEl.options[catEl.selectedIndex].text;
 
-      btn.innerText = 'ANALYSE…';
+      btn.innerText = 'SCANNANT...';
+      resDiv.innerHTML = '';
       setRobotState('idle');
-      resDiv.style.display = 'none';
 
       const payload = {
-        Amount: amount,
+        Amount: parseFloat(document.getElementById('Amount').value),
         Transaction_Date: dateVal.replace('T', ' ') + ':00',
-        Merchant_Category: catEl.value,
+        Merchant_Category: document.getElementById('Merchant_Category').value,
         Card_Type: document.getElementById('Card_Type').value,
         Transaction_Type: document.getElementById('Transaction_Type').value,
         Country: document.getElementById('Country').value,
         Device_Type: document.getElementById('Device_Type').value,
+        Distance_From_Home: parseFloat(document.getElementById('Distance_From_Home').value),
         Is_International: parseInt(document.getElementById('Is_International').value),
         Is_Chip: parseInt(document.getElementById('Is_Chip').value),
         Is_Pin_Used: parseInt(document.getElementById('Is_Pin_Used').value),
-        Distance_From_Home: parseFloat(document.getElementById('Distance_From_Home').value),
         Hour_of_Day: new Date(dateVal).getHours()
       };
 
       try {
-        const data = await (await fetch('/predict', {
+        const resp = await fetch('/predict', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
-        })).json();
+        });
+        const data = await resp.json();
 
-        const pred = data.prediction ?? 0;
-        const proba = typeof data.probability === 'number' ? data.probability : 0;
-        const msg = (typeof data.message === 'string' && data.message.trim())
-          ? data.message
-          : (pred === 1 ? 'Activité suspecte détectée !' : 'La transaction semble légitime.');
-        const ver = data.version ?? 'N/A';
-        const risk = (proba * 100).toFixed(2);
-        const conf = ((1 - proba) * 100).toFixed(2);
+        const isFraud = data.prediction === 1;
+        setRobotState(isFraud ? 'fraud' : 'safe');
 
-        resDiv.style.display = 'block';
-
-        if (pred === 1) {
-          setRobotState('fraud');
-          resDiv.innerHTML = `
-          <div class="ri fraud-th">
-            <h3 style="color:#ef4444">🚨 ${msg}</h3>
-            <p>Paiement de <b>${amount.toFixed(2)} $</b> — <b>${cat}</b></p>
-            <div class="score" style="background:rgba(239,68,68,0.1);color:#ef4444">Risque : <b>${risk} %</b></div>
-            <div class="meta">Modèle : ${ver}</div>
-          </div>`;
-        } else {
-          setRobotState('safe');
-          resDiv.innerHTML = `
-          <div class="ri safe-th">
-            <h3 style="color:#22c55e">✅ ${msg}</h3>
-            <p>Paiement de <b>${amount.toFixed(2)} $</b> (${cat}) validé.</p>
-            <div class="score" style="background:rgba(34,197,94,0.1);color:#22c55e">Confiance : <b>${conf} %</b></div>
-            <div class="meta">Modèle : ${ver}</div>
-          </div>`;
-        }
-
-      } catch {
-        resDiv.style.display = 'block';
         resDiv.innerHTML = `
-        <div class="ri" style="border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.08)">
-          <h3 style="color:#ef4444">❌ Erreur réseau</h3>
-          <p>Impossible de joindre l'API.</p>
-        </div>`;
+        <div class="ri ${isFraud ? 'fraud-th' : 'safe-th'}">
+          <h3 style="color:${isFraud ? '#ef4444' : '#22c55e'}">${isFraud ? '⚠️ FRAUDE DÉTECTÉE' : '✅ TRANSACTION SÛRE'}</h3>
+          <p>${data.message || (isFraud ? 'Alerte : Modèle suspect.' : 'Transaction autorisée.')}</p>
+          <div class="score" style="background:${isFraud ? 'rgba(239,68,68,0.1)' : 'rgba(34,197,94,0.1)'}; color:${isFraud ? '#f87171' : '#4ade80'}">
+            ${isFraud ? 'Probabilité' : 'Confiance'} : ${(data.probability * 100).toFixed(1)}%
+          </div>
+        </div>
+      `;
+      } catch {
+        resDiv.innerHTML = '<div class="ri" style="color:#ef4444">Erreur de connexion API.</div>';
       }
-      btn.innerText = "LANCER L'ANALYSE";
+      btn.innerText = 'VÉRIFIER LA TRANSACTION';
     }
   </script>
 </body>

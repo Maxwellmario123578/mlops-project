@@ -2,71 +2,394 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>MLOps - Détection de Fraude</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FraudShield | MLOps Bank Monitoring</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; background: #f5f5f5; }
-    h1 { color: #1a1a2e; text-align: center; }
-    .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    textarea { width: 100%; height: 80px; padding: 10px; font-size: 14px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-    button { background: #2E75B6; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; }
-    button:hover { background: #1F4E79; }
-    #result { margin-top: 20px; padding: 15px; border-radius: 5px; display: none; }
-    .normal { background: #E2EFDA; border-left: 5px solid #375623; color: #375623; }
-    .fraud { background: #FFE7E7; border-left: 5px solid #C00000; color: #C00000; }
-    .info { background: #EEF4FF; border-left: 5px solid #2E75B6; color: #1F4E79; margin-bottom: 20px; padding: 10px; border-radius: 5px; }
-    .status { display: flex; gap: 10px; margin-bottom: 20px; }
-    .badge { padding: 5px 12px; border-radius: 20px; font-size: 13px; background: #E2EFDA; color: #375623; }
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg-dark: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-dark);
+      background-image: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      backdrop-filter: blur(12px);
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 8px;
+    }
+
+    .status-badges {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .badge {
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    input, select {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--glass-border);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .switches {
+      display: flex;
+      justify-content: space-between;
+      grid-column: span 2;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 20px;
+      border-radius: 16px;
+      margin: 10px 0;
+    }
+
+    @media (max-width: 640px) {
+      .switches { flex-direction: column; gap: 20px; grid-column: span 1; }
+    }
+
+    .switch-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255,255,255,0.1);
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px; width: 18px;
+      left: 3px; bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    button {
+      grid-column: span 2;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 640px) { button { grid-column: span 1; } }
+
+    button:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    button:active { transform: translateY(0); }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #result {
+      margin-top: 30px;
+      padding: 24px;
+      border-radius: 16px;
+      display: none;
+      animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-fraud {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .result-normal {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .bg-fraud { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+    .bg-normal { background: var(--success); box-shadow: 0 0 10px var(--success); }
+
+    .result-content p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .result-content b {
+      color: var(--text-main);
+    }
   </style>
 </head>
 <body>
-  <h1>🔍 MLOps — Détection de Fraude Bancaire</h1>
+  <div class="container">
+    <header>
+      <h1>FraudShield AI</h1>
+      <div class="status-badges" id="status">
+        <span class="badge">Vérification de l'état...</span>
+      </div>
+    </header>
 
-  <div class="card">
-    <div class="status" id="status"></div>
+    <form id="predictionForm" class="grid" onsubmit="event.preventDefault(); predict();">
+      <div class="form-group">
+        <label>Montant ($)</label>
+        <input type="number" step="0.01" id="Amount" value="45.00" required>
+      </div>
+      
+      <div class="form-group">
+        <label>Date & Heure</label>
+        <input type="datetime-local" id="Transaction_Date" required>
+      </div>
 
-    <div class="info">
-      ℹ️ Entrez 30 valeurs numériques séparées par des virgules (features V1 à V28 + Time + Amount).
-    </div>
+      <div class="form-group">
+        <label>Catégorie Marchand</label>
+        <select id="Merchant_Category">
+          <option value="Retail">Commerce de détail</option>
+          <option value="Online Store">Boutique en ligne</option>
+          <option value="Entertainment">Divertissement</option>
+          <option value="Travel">Voyage</option>
+          <option value="Food & Drink">Alimentation</option>
+          <option value="Others">Autres</option>
+        </select>
+      </div>
 
-    <label><strong>Features (30 valeurs) :</strong></label>
-    <textarea id="features" placeholder="-1.36, -0.07, 2.54, 1.38, -0.34, 0.46, 0.24, 0.10, 0.36, 0.09, -0.55, -0.62, -0.99, -0.31, 1.47, -0.47, 0.21, 0.03, 0.40, 0.25, -0.02, 0.28, -0.11, 0.07, 0.13, -0.19, 0.13, -0.01, 149.62, 0.0">-1.36, -0.07, 2.54, 1.38, -0.34, 0.46, 0.24, 0.10, 0.36, 0.09, -0.55, -0.62, -0.99, -0.31, 1.47, -0.47, 0.21, 0.03, 0.40, 0.25, -0.02, 0.28, -0.11, 0.07, 0.13, -0.19, 0.13, -0.01, 149.62, 0.0</textarea>
+      <div class="form-group">
+        <label>Type de Carte</label>
+        <select id="Card_Type">
+          <option value="Visa">Visa</option>
+          <option value="Mastercard">Mastercard</option>
+          <option value="American Express">American Express</option>
+        </select>
+      </div>
 
-    <button onclick="predict()">🚀 Analyser la transaction</button>
+      <div class="form-group">
+        <label>Type de Transaction</label>
+        <select id="Transaction_Type">
+          <option value="POS">Point de vente (POS)</option>
+          <option value="Online">En ligne</option>
+          <option value="ATM">Retrait ATM</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Pays</label>
+        <select id="Country">
+          <option value="France">France</option>
+          <option value="USA">États-Unis</option>
+          <option value="UK">Royaume-Uni</option>
+          <option value="Germany">Allemagne</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Appareil</label>
+        <select id="Device_Type">
+          <option value="Mobile">Mobile</option>
+          <option value="Desktop">Ordinateur</option>
+          <option value="Tablet">Tablette</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Distance du domicile (km)</label>
+        <input type="number" step="0.1" id="Distance_From_Home" value="1.5" required>
+      </div>
+
+      <div class="switches">
+        <div class="switch-group">
+          <label class="switch">
+            <input type="checkbox" id="Is_International">
+            <span class="slider"></span>
+          </label>
+          <label>International</label>
+        </div>
+        <div class="switch-group">
+          <label class="switch">
+            <input type="checkbox" id="Is_Chip" checked>
+            <span class="slider"></span>
+          </label>
+          <label>Puce (Chip)</label>
+        </div>
+        <div class="switch-group">
+          <label class="switch">
+            <input type="checkbox" id="Is_Pin_Used" checked>
+            <span class="slider"></span>
+          </label>
+          <label>PIN utilisé</label>
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn">Analyser la transaction</button>
+    </form>
 
     <div id="result"></div>
   </div>
 
   <script>
+    // Set default datetime to now
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('Transaction_Date').value = now.toISOString().slice(0, 16);
+
     async function checkHealth() {
       try {
         const r = await fetch('/health');
         const d = await r.json();
         document.getElementById('status').innerHTML =
-          '<span class="badge">✅ API en ligne</span>' +
-          '<span class="badge">🤖 Modèle : ' + d.version + '</span>';
+          '<span class="badge" style="color:#22c55e">● API en ligne</span>' +
+          '<span class="badge">Modèle ' + d.version + '</span>';
       } catch(e) {
-        document.getElementById('status').innerHTML = '<span class="badge" style="background:#FFE7E7;color:#C00000">❌ API hors ligne</span>';
+        document.getElementById('status').innerHTML = 
+          '<span class="badge" style="color:#ef4444">● API déconnectée</span>';
       }
     }
 
     async function predict() {
-      const raw = document.getElementById('features').value;
-      const features = raw.split(',').map(x => parseFloat(x.trim()));
+      const btn = document.getElementById('submitBtn');
+      const dateVal = document.getElementById('Transaction_Date').value;
+      const dt = new Date(dateVal);
+      
+      const payload = {
+        Amount: parseFloat(document.getElementById('Amount').value),
+        Transaction_Date: dateVal.replace('T', ' ') + ':00',
+        Merchant_Category: document.getElementById('Merchant_Category').value,
+        Card_Type: document.getElementById('Card_Type').value,
+        Transaction_Type: document.getElementById('Transaction_Type').value,
+        Country: document.getElementById('Country').value,
+        Device_Type: document.getElementById('Device_Type').value,
+        Is_International: document.getElementById('Is_International').checked ? 1 : 0,
+        Is_Chip: document.getElementById('Is_Chip').checked ? 1 : 0,
+        Is_Pin_Used: document.getElementById('Is_Pin_Used').checked ? 1 : 0,
+        Distance_From_Home: parseFloat(document.getElementById('Distance_From_Home').value),
+        Hour_of_Day: dt.getHours()
+      };
 
-      if (features.length !== 30 || features.some(isNaN)) {
-        alert('Entrez exactement 30 valeurs numériques séparées par des virgules.');
-        return;
-      }
-
-      const btn = document.querySelector('button');
-      btn.textContent = '⏳ Analyse en cours...';
+      btn.textContent = 'Analyse en cours...';
       btn.disabled = true;
 
       try {
         const response = await fetch('/predict', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ features })
+          body: JSON.stringify(payload)
         });
 
         const data = await response.json();
@@ -74,29 +397,43 @@
         div.style.display = 'block';
 
         if (data.prediction === 1) {
-          div.className = 'fraud';
-          div.innerHTML = '<h3>🚨 FRAUDE DÉTECTÉE</h3>' +
-            '<p><strong>Probabilité de fraude :</strong> ' + (data.fraud_probability * 100).toFixed(2) + '%</p>' +
-            '<p><strong>Résultat :</strong> ' + data.result + '</p>' +
-            '<p><strong>Version modèle :</strong> ' + data.model_version + '</p>';
+          div.className = 'result-fraud';
+          div.innerHTML = `
+            <div class="result-header">
+              <div class="dot bg-fraud"></div>
+              <h3 style="color:#ef4444">FRAUDE DÉTECTÉE</h3>
+            </div>
+            <div class="result-content">
+              <p>Confiance : <b>${(data.fraud_probability * 100).toFixed(2)}%</b></p>
+              <p>Statut : <b>Risque élevé</b></p>
+              <p>Version : <b>${data.model_version}</b></p>
+            </div>`;
         } else {
-          div.className = 'normal';
-          div.innerHTML = '<h3>✅ TRANSACTION NORMALE</h3>' +
-            '<p><strong>Probabilité de fraude :</strong> ' + (data.fraud_probability * 100).toFixed(2) + '%</p>' +
-            '<p><strong>Résultat :</strong> ' + data.result + '</p>' +
-            '<p><strong>Version modèle :</strong> ' + data.model_version + '</p>';
+          div.className = 'result-normal';
+          div.innerHTML = `
+            <div class="result-header">
+              <div class="dot bg-normal"></div>
+              <h3 style="color:#22c55e">TRANSACTION ANALYSÉE</h3>
+            </div>
+            <div class="result-content">
+              <p>Risque de fraude : <b>${(data.fraud_probability * 100).toFixed(2)}%</b></p>
+              <p>Statut : <b>Sécurisé</b></p>
+              <p>Version : <b>${data.model_version}</b></p>
+            </div>`;
         }
       } catch(e) {
-        document.getElementById('result').style.display = 'block';
-        document.getElementById('result').className = 'fraud';
-        document.getElementById('result').innerHTML = '<p>❌ Erreur : ' + e.message + '</p>';
+        const div = document.getElementById('result');
+        div.style.display = 'block';
+        div.className = 'result-fraud';
+        div.innerHTML = `<p style="color:#ef4444">❌ Erreur de connexion au serveur d'analyse.</p>`;
       }
 
-      btn.textContent = '🚀 Analyser la transaction';
+      btn.textContent = 'Analyser la transaction';
       btn.disabled = false;
     }
 
     checkHealth();
+    setInterval(checkHealth, 10000);
   </script>
 </body>
 </html>

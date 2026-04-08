@@ -34,8 +34,8 @@ def main():
     log.info(classification_report(splits['y_test'], y_pred))
  
     # Sauvegarder modèle + métriques
-    os.makedirs('/app/artifacts', exist_ok=True)
-    pickle.dump(model, open('/app/artifacts/model.pkl', 'wb'))
+    os.makedirs('train/artifacts', exist_ok=True)
+    pickle.dump(model, open('train/artifacts/model.pkl', 'wb'))
  
     metrics = {
         'version': MODEL_VERSION,
@@ -43,12 +43,12 @@ def main():
         'f1_score': round(f1, 4),
         'timestamp': datetime.utcnow().isoformat()
     }
-    with open('/app/artifacts/metrics.json', 'w') as f:
+    with open('train/artifacts/metrics.json', 'w') as f:
         json.dump(metrics, f, indent=2)
  
     # Upload sur S3
     for fname in ['model.pkl', 'metrics.json']:
-        s3.upload_file(f'/app/artifacts/{fname}',
+        s3.upload_file(f'train/artifacts/{fname}',
                        S3_BUCKET, f'models/{MODEL_VERSION}/{fname}')
     log.info(f'Modèle {MODEL_VERSION} sauvegardé sur S3.')
  

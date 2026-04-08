@@ -14,7 +14,7 @@ MODEL_VERSION = os.environ['MODEL_VERSION']
  
 def main():
     log.info("Chargement du dataset...")
-    df = pd.read_csv("/app/data/creditcard.csv")
+    df = pd.read_csv("train/data/creditcard.csv")
     log.info(f"Dataset: {len(df)} lignes, {df['Class'].sum()} fraudes")
  
     # Features et cible
@@ -30,18 +30,18 @@ def main():
         X_scaled, y, test_size=0.2, random_state=42, stratify=y)
  
     # Sauvegarde locale
-    os.makedirs('/app/artifacts', exist_ok=True)
-    pickle.dump(scaler, open('/app/artifacts/scaler.pkl', 'wb'))
+    os.makedirs('train/artifacts', exist_ok=True)
+    pickle.dump(scaler, open('train/artifacts/scaler.pkl', 'wb'))
  
     # Sauvegarde des splits
     splits = {'X_train':X_train,'X_test':X_test,
               'y_train':y_train.values,'y_test':y_test.values}
-    pickle.dump(splits, open('/app/artifacts/splits.pkl', 'wb'))
+    pickle.dump(splits, open('train/artifacts/splits.pkl', 'wb'))
  
     # Upload sur S3
     s3 = boto3.client('s3')
     for fname in ['scaler.pkl', 'splits.pkl']:
-        s3.upload_file(f'/app/artifacts/{fname}',
+        s3.upload_file(f'train/artifacts/{fname}',
                        S3_BUCKET, f'models/{MODEL_VERSION}/{fname}')
         log.info(f'Upload S3: models/{MODEL_VERSION}/{fname}')
  

@@ -1,0 +1,171 @@
+version: '3.9'
+ 
+services:
+ 
+  # ═══ WAF + REVERSE PROXY ════════════════════════════════
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/html:/usr/share/nginx/html:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      api1: { condition: service_healthy }
+      api2: { condition: service_healthy }
+    restart: unless-stopped
+    networks: [frontend, monitoring]
+    healthcheck:
+      test: ['CMD', 'nginx', '-t']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+ 
+  # ═══ INSTANCE APPLICATIVE 1 (non-root) ══════════════════
+  api1:
+    image: ${ECR_URL}/mlops-api:${MODEL_VERSION}
+    environment:
+      - MODEL_VERSION=${MODEL_VERSION}
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    volumes:
+      - model_cache:/app/model_cache
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'python', '-c',
+             'import urllib.request; urllib.request.urlopen("http://localhost:8000/health")']
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    networks: [backend, monitoring]
+    user: '1000:1000'
+    security_opt:
+      - no-new-privileges:true
+ 
+  # ═══ INSTANCE APPLICATIVE 2 (non-root) ══════════════════
+  api2:
+    image: ${ECR_URL}/mlops-api:${MODEL_VERSION}
+    environment:
+      - MODEL_VERSION=${MODEL_VERSION}
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    volumes:
+      - model_cache:/app/model_cache
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'python', '-c',
+             'import urllib.request; urllib.request.urlopen("http://localhost:8000/health")']
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    networks: [backend, monitoring]
+    user: '1000:1000'
+    security_opt:
+      - no-new-privileges:true
+ 
+  # ═══ TRAINING (service isolé, lancé à la demande) ════════
+  training:
+    image: ${ECR_URL}/mlops-train:${MODEL_VERSION}
+    environment:
+      - MODEL_VERSION=${MODEL_VERSION}
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    volumes:
+      - training_data:/app/data
+      - training_artifacts:/app/artifacts
+    networks: [backend]
+    profiles: ['train']
+ 
+  # ═══ PROMETHEUS ══════════════════════════════════════════
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090" 
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+    restart: unless-stopped
+    networks: [monitoring]
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:9090/-/healthy']
+      interval: 30s
+ 
+  # ═══ GRAFANA ═════════════════════════════════════════════
+  grafana:
+    ports:
+      - "3000:3000"
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+#      - GF_SERVER_ROOT_URL=https://%(domain)s/grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    networks: [monitoring]
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      interval: 30s
+ 
+  # ═══ LOKI (logs centralisés) ═════════════════════════════
+  loki:
+    image: grafana/loki:latest
+    volumes:
+      - loki_data:/loki
+    restart: unless-stopped
+    networks: [monitoring]
+ 
+  # ═══ PROMTAIL (collecte logs Docker) ════════════════════
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./monitoring/promtail.yml:/etc/promtail/config.yml:ro
+    restart: unless-stopped
+    networks: [monitoring]
+ 
+  # ═══ BACKUP AUTOMATIQUE ══════════════════════════════════
+  backup:
+    image: amazon/aws-cli:latest
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - S3_BUCKET=${S3_BUCKET}
+    volumes:
+      - model_cache:/backup/model_cache:ro
+      - prometheus_data:/backup/prometheus:ro
+      - ./scripts/backup.sh:/backup.sh:ro
+    entrypoint: ['/bin/sh', '/backup.sh']
+    restart: "no"
+ 
+# ═══ VOLUMES PERSISTANTS ════════════════════════════════════
+volumes:
+  model_cache:        # modèle partagé entre api1 et api2
+  training_data:      # données d'entraînement
+  training_artifacts: # artefacts de training
+  prometheus_data:    # métriques historiques 30 jours
+  grafana_data:       # dashboards et configuration
+  loki_data:          # logs centralisés
+  nginx_logs:         # accès logs Nginx
+ 
+# ═══ RÉSEAUX (séparation stricte) ═══════════════════════════
+networks:
+  frontend:    # Nginx ↔ Internet uniquement
+  backend:     # API ↔ Training (isolé d'internet)
+  monitoring:  # Prometheus ↔ Grafana ↔ APIs

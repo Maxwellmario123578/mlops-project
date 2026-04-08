@@ -1,5 +1,5 @@
 import pickle, os, json, logging, boto3
-from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
 from sklearn.metrics import classification_report, roc_auc_score, f1_score
 from datetime import datetime
  
@@ -17,11 +17,16 @@ def main():
         f'models/{MODEL_VERSION}/splits.pkl', '/tmp/splits.pkl')
     splits = pickle.load(open('/tmp/splits.pkl', 'rb'))
  
-    log.info("Démarrage entraînement RandomForest...")
-    model = RandomForestClassifier(
-        n_estimators=100, random_state=42,
-        class_weight='balanced',  # gestion du déséquilibre fraude/normal
-        n_jobs=-1)
+    log.info("Démarrage entraînement XGBoost...")
+    model = XGBClassifier(
+        n_estimators=100,
+        max_depth=6,
+        learning_rate=0.1,
+        objective='binary:logistic',
+        random_state=42,
+        scale_pos_weight=10, 
+        n_jobs=-1
+    )
     model.fit(splits['X_train'], splits['y_train'])
  
     # Évaluation

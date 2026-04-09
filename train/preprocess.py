@@ -2,98 +2,104 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-import boto3, pickle, os, logging, json
-from datetime import datetime
+from imblearn.combine import SMOTEENN
+import boto3, pickle, os, logging
 
 logging.basicConfig(level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s")
+    format='{"time":"%(asctime)s","level":"%(levelname)s","msg":"%(message)s"}')
 log = logging.getLogger(__name__)
 
 S3_BUCKET     = os.environ['S3_BUCKET']
 MODEL_VERSION = os.environ['MODEL_VERSION']
 
 def replace_outliers(df, target_column):
-    # On sélectionne les colonnes numériques SAUF la target
-    cols_to_process = df.select_dtypes(include=['number']).columns.drop(target_column)
-    
-    for col in cols_to_process:
+    cols = df.select_dtypes(include=['number']).columns.drop(target_column)
+    for col in cols:
         Q1 = df[col].quantile(0.25)
         Q3 = df[col].quantile(0.75)
         IQR = Q3 - Q1
-        
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR  
-        df[col] = np.where(df[col] < lower_bound, lower_bound, df[col])
-        df[col] = np.where(df[col] > upper_bound, upper_bound, df[col])
-    
+        lower = Q1 - 1.5 * IQR
+        upper = Q3 + 1.5 * IQR
+        df[col] = np.where(df[col] < lower, lower, df[col])
+        df[col] = np.where(df[col] > upper, upper, df[col])
     return df
 
 def main():
-    log.info("Chargement du dataset...")
-    # Le notebook utilise credit_card_fraud_2025.csv, on adapte le chemin
-    data_path = "train/data/credit_card_fraud_2025.csv"
-    if not os.path.exists(data_path):
-        data_path = "train/data/creditcard.csv" # Fallback
-        
-    df = pd.read_csv(data_path)
-    log.info(f"Dataset chargé: {len(df)} lignes")
+    s3 = boto3.client('s3')
 
-    # Suppression colonnes inutiles comme dans le notebook
-    to_drop = ["Transaction_ID", "Customer_ID", "Merchant_ID"]
-    df = df.drop([c for c in to_drop if c in df.columns], axis=1)
+    # Télécharger le dataset Parquet depuis S3
+    os.makedirs('train/data', exist_ok=True)
+    log.info("Téléchargement du dataset Parquet depuis S3...")
+    s3.download_file(S3_BUCKET,
+        'data/credit_card_fraud_2025.parquet',
+        'train/data/credit_card_fraud_2025.parquet')
+
+    # Charger
+    log.info("Chargement du dataset...")
+    data = pd.read_parquet('train/data/credit_card_fraud_2025.parquet')
+    log.info(f"Dataset: {len(data)} lignes | Fraudes: {data['Fraud_Flag'].sum()}")
+
+    # Suppression colonnes inutiles
+    to_drop = [c for c in ["Transaction_ID", "Customer_ID", "Merchant_ID"] if c in data.columns]
+    data = data.drop(to_drop, axis=1)
 
     # Conversion date en timestamp
-    if "Transaction_Date" in df.columns:
-        df['Transaction_Date'] = pd.to_datetime(df['Transaction_Date'])
-        df['Timestamp'] = df['Transaction_Date'].astype('int64') // 10**9
-        df = df.drop("Transaction_Date", axis=1)
+    if "Transaction_Date" in data.columns:
+        data['Transaction_Date'] = pd.to_datetime(data['Transaction_Date'])
+        data['Timestamp'] = data['Transaction_Date'].astype('int64') // 10**9
+        data = data.drop("Transaction_Date", axis=1)
 
-    # Encodage fréquentiel (Multiencodage du notebook)
-    categorical_cols = ["Merchant_Category", "Card_Type", "Transaction_Type", "Country", "Device_Type"]
+    # Encodage fréquentiel (Multiencodage — comme dans le notebook)
+    cat_cols = ["Merchant_Category", "Card_Type", "Transaction_Type", "Country", "Device_Type"]
     encoding_maps = {}
-    
-    for col in categorical_cols:
-        if col in df.columns:
-            new_map = df.groupby(col).size() / len(df)
-            encoding_maps[col] = new_map.to_dict()
-            df[f"{col}_encode"] = df[col].map(new_map)
-            df = df.drop(col, axis=1)
+    for col in cat_cols:
+        if col in data.columns:
+            freq = data.groupby(col).size() / len(data)
+            encoding_maps[col] = freq.to_dict()
+            data[f"{col}_encode"] = data[col].map(freq)
+            data = data.drop(col, axis=1)
 
-    # Traitement des valeurs aberrantes
-    target = 'Fraud_Flag' if 'Fraud_Flag' in df.columns else 'Class'
-    df = replace_outliers(df, target)
+    # Traitement valeurs aberrantes
+    data = replace_outliers(data, 'Fraud_Flag')
 
-    # Features et cible
-    X = df.drop(target, axis=1)
-    y = df[target]
-
-    # Normalisation
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    # Séparation features / target
+    X = data.drop("Fraud_Flag", axis=1)
+    y = data["Fraud_Flag"]
+    feature_names = list(X.columns)
+    log.info(f"Features ({len(feature_names)}): {feature_names}")
 
     # Split stratifié
     X_train, X_test, y_train, y_test = train_test_split(
-        X_scaled, y, test_size=0.2, random_state=42, stratify=y)
+        X, y, test_size=0.2, random_state=42, stratify=y)
 
-    # Sauvegarde locale
+    # Scaling
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled  = scaler.transform(X_test)
+
+    # SMOTEENN — comme dans le notebook
+    log.info("Application SMOTEENN (peut prendre quelques minutes)...")
+    smote_enn = SMOTEENN(random_state=42)
+    X_train_balanced, y_train_balanced = smote_enn.fit_resample(X_train_scaled, y_train)
+    log.info(f"Après SMOTEENN: {dict(zip(*np.unique(y_train_balanced, return_counts=True)))}")
+
+    # Sauvegarde artefacts
     os.makedirs('train/artifacts', exist_ok=True)
-    pickle.dump(scaler, open('train/artifacts/scaler.pkl', 'wb'))
-    pickle.dump(encoding_maps, open('train/artifacts/encodings.pkl', 'wb'))
-    
-    # On sauve les noms de colonnes pour l'API
-    pickle.dump(X.columns.tolist(), open('train/artifacts/features.pkl', 'wb'))
+    pickle.dump(scaler,         open('train/artifacts/scaler.pkl', 'wb'))
+    pickle.dump(encoding_maps,  open('train/artifacts/encodings.pkl', 'wb'))
+    pickle.dump(feature_names,  open('train/artifacts/features.pkl', 'wb'))
+    pickle.dump({
+        'X_train': X_train_balanced,
+        'y_train': y_train_balanced,
+        'X_test':  X_test_scaled,
+        'y_test':  y_test.values
+    }, open('train/artifacts/splits.pkl', 'wb'))
 
-    # Sauvegarde des splits
-    splits = {'X_train':X_train,'X_test':X_test,
-              'y_train':y_train.values,'y_test':y_test.values}
-    pickle.dump(splits, open('train/artifacts/splits.pkl', 'wb'))
-
-    # Upload sur S3
-    s3 = boto3.client('s3')
+    # Upload S3
     for fname in ['scaler.pkl', 'encodings.pkl', 'features.pkl', 'splits.pkl']:
         s3.upload_file(f'train/artifacts/{fname}',
                        S3_BUCKET, f'models/{MODEL_VERSION}/{fname}')
-        log.info(f'Upload S3: models/{MODEL_VERSION}/{fname}')
+        log.info(f'Uploadé: models/{MODEL_VERSION}/{fname}')
 
     log.info('Preprocessing terminé avec succès.')
 

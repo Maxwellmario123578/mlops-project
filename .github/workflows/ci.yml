@@ -1,0 +1,123 @@
+name: MLOps CI/CD Pipeline
+ 
+on:
+  push:
+    branches: [main]
+ 
+env:
+  AWS_REGION: us-east-1
+ 
+jobs:
+  # ─── Job 1 : Entraînement + Build + Push ─────────────────
+  train-build-push:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
+      ecr_registry: ${{ steps.login-ecr.outputs.registry }}
+ 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+ 
+      - name: Générer version unique
+        id: version
+        run: |
+          VERSION="v$(date +%Y%m%d_%H%M)"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+ 
+      - name: Configurer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+ 
+      - name: Configurer AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+ 
+      - name: Télécharger dataset depuis S3
+        run: |
+          aws s3 cp s3://${{ secrets.S3_BUCKET }}/data/creditcard.csv train/data/
+ 
+      - name: Installer dépendances training
+        run: pip install -r train/requirements.txt
+ 
+      - name: Preprocessing
+        env:
+          S3_BUCKET:     ${{ secrets.S3_BUCKET }}
+          MODEL_VERSION: ${{ steps.version.outputs.VERSION }}
+        run: python train/preprocess.py
+ 
+      - name: Entraînement modèle
+        env:
+          S3_BUCKET:     ${{ secrets.S3_BUCKET }}
+          MODEL_VERSION: ${{ steps.version.outputs.VERSION }}
+        run: python train/train.py
+ 
+      - name: Login ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+ 
+      - name: Build et Push image API
+        run: |
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          VERSION=${{ steps.version.outputs.VERSION }}
+          docker build -t $REGISTRY/mlops-api:$VERSION ./api
+          docker push $REGISTRY/mlops-api:$VERSION
+          docker tag $REGISTRY/mlops-api:$VERSION $REGISTRY/mlops-api:latest
+          docker push $REGISTRY/mlops-api:latest
+ 
+      - name: Build et Push image Training
+        run: |
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          VERSION=${{ steps.version.outputs.VERSION }}
+          docker build -t $REGISTRY/mlops-train:$VERSION ./train
+          docker push $REGISTRY/mlops-train:$VERSION
+ 
+      - name: Backup artefacts sur S3
+        run: |
+          aws s3 sync train/artifacts/ \
+            s3://${{ secrets.S3_BUCKET }}/ci-artifacts/${{ steps.version.outputs.VERSION }}/
+ 
+  # ─── Job 2 : Déploiement sur EC2 ─────────────────────────
+  deploy:
+    needs: train-build-push
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Déploiement SSH sur EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host:     ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key:      ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/mlops-project
+ 
+            # Mettre à jour la version dans .env
+            sed -i 's/^MODEL_VERSION=.*/MODEL_VERSION=${{ needs.train-build-push.outputs.version }}/' .env
+ 
+            # Login ECR depuis l'EC2
+            aws ecr get-login-password --region us-east-1 | \
+              docker login --username AWS --password-stdin ${{ secrets.ECR_URL }}
+ 
+            # Pull nouvelles images
+            docker compose pull api1 api2
+ 
+            # Redémarrage sans interruption (rolling update manuel)
+            docker compose up -d --no-deps api1
+            sleep 20
+            docker compose up -d --no-deps api2
+ 
+            # Vérifier les healthchecks
+            sleep 15
+            docker compose ps | grep 'api' | grep 'healthy' || exit 1
+ 
+            # Backup immédiat après déploiement
+            docker compose run --rm backup sh /backup.sh
+ 
+            echo "Déploiement ${{ needs.train-build-push.outputs.version }} réussi"
